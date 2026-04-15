@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>Cerebonix AI - المساعد الذكي العام | مع الوقت والحذف الفردي</title>
+    <title>Cerebonix AI - المساعد الذكي العام | مع Google Backup & فتح التطبيقات</title>
     <style>
         * {
             margin: 0;
@@ -273,7 +273,6 @@
             opacity: 0.8;
         }
 
-        /* تنسيق الوقت */
         .message-time {
             font-size: 0.65rem;
             color: var(--time-stamp);
@@ -283,7 +282,6 @@
             opacity: 0.7;
         }
 
-        /* أزرار النسخ والاستماع والحذف */
         .action-buttons {
             display: flex;
             gap: 6px;
@@ -323,8 +321,9 @@
             background: var(--surface);
             border-top: 1px solid var(--border-light);
             display: flex;
-            gap: 10px;
+            gap: 8px;
             align-items: center;
+            flex-wrap: wrap;
         }
 
         .input-area input {
@@ -343,21 +342,22 @@
             box-shadow: 0 0 0 3px var(--accent-glow);
         }
 
-        .send-btn, .voice-btn {
+        .send-btn, .voice-btn, .app-menu-btn {
             background: var(--accent);
             border: none;
             width: 46px;
             height: 46px;
             border-radius: 30px;
             color: white;
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             cursor: pointer;
             transition: 0.2s;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
         }
         .voice-btn { background: #3b82f6; }
+        .app-menu-btn { background: #10b981; width: auto; padding: 0 14px; gap: 4px; }
 
         .send-btn:disabled, .voice-btn:disabled {
             opacity: 0.5;
@@ -517,6 +517,40 @@
             font-weight: 600;
             cursor: pointer;
         }
+
+        /* قائمة التطبيقات المنسدلة */
+        .apps-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            bottom: 60px;
+            left: 0;
+            background-color: var(--surface);
+            min-width: 180px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 30;
+            border-radius: 20px;
+            border: 1px solid var(--border-light);
+            overflow: hidden;
+        }
+        .dropdown-content a {
+            color: var(--text-primary);
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            font-size: 0.9rem;
+            transition: 0.1s;
+            cursor: pointer;
+        }
+        .dropdown-content a:hover {
+            background-color: var(--border-light);
+        }
+        .show {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -564,22 +598,21 @@
                 <hr style="margin: 15px 0; border-color: var(--border-light);">
                 <p><strong>🤖 الاسم:</strong> Cerebonix AI</p>
                 <p><strong>👨‍💻 صانع الذكاء:</strong> محمد حلاق</p>
-                <p><strong>⚙️ الإصدار:</strong> Pro 3.1 (مع الوقت والحذف الفردي)</p>
+                <p><strong>⚙️ الإصدار:</strong> Pro 4.0 (مع Google Backup وفتح التطبيقات)</p>
                 <p><strong>🌐 اللغات:</strong> العربية، الإنجليزية (يدعم لغات متعددة)</p>
                 <p><strong>✨ المميزات الجديدة:</strong></p>
                 <ul style="margin-right: 20px; margin-top: 10px;">
-                    <li>🕒 عرض وقت كل رسالة حسب جهازك (مثل واتساب)</li>
+                    <li>🕒 عرض وقت كل رسالة حسب جهازك</li>
                     <li>🗑️ حذف رسالة واحدة بسهولة</li>
                     <li>🚀 سرعة فائقة بالردود</li>
                     <li>🔁 نظام تبديل تلقائي بين 3 مفاتيح API (Groq Llama)</li>
                     <li>🎤 إدخال صوتي (Speech to Text)</li>
                     <li>🔊 قراءة الردود بصوت عربي</li>
                     <li>💾 حفظ واستعادة المحادثات</li>
+                    <li>🌐 عند فشل جميع المفاتيح → توجيه إلى Google للبحث</li>
+                    <li>📱 فتح تطبيقات الهاتف: يوتيوب، انستقرام، كاميرا، إعدادات، خرائط</li>
                 </ul>
                 <p style="margin-top: 20px;"><strong>📞 تواصل مع المطور:</strong> عبر البريد الإلكتروني.</p>
-                <div class="map-link" style="background: var(--accent-glow); padding: 10px; border-radius: 20px; margin-top: 20px;">
-                    💡 <strong>ملاحظة:</strong> Cerebonix AI هو مساعد عام يمكنه الإجابة عن أي سؤال باستخدام ذكاء Llama 3.3 70B عبر Groq Cloud.
-                </div>
             </div>
 
             <div id="settingsPanel" class="info-panel hidden">
@@ -594,10 +627,21 @@
 
             <div class="input-area">
                 <input type="text" id="messageInput" placeholder="اسألني أي شيء... أنا Cerebonix AI مصمم بواسطة محمد حلاق" autocomplete="off">
+                <div class="apps-dropdown">
+                    <button class="app-menu-btn" id="appsMenuBtn">📱 التطبيقات ▼</button>
+                    <div id="appsDropdown" class="dropdown-content">
+                        <a id="openYoutube">📺 فتح YouTube</a>
+                        <a id="openInstagram">📷 فتح Instagram</a>
+                        <a id="openCamera">📸 فتح الكاميرا</a>
+                        <a id="openSettings">⚙️ فتح الإعدادات</a>
+                        <a id="openMaps">🗺️ فتح الخرائط</a>
+                        <a id="openBrowser">🌐 فتح المتصفح</a>
+                    </div>
+                </div>
                 <button class="voice-btn" id="voiceBtn" title="تسجيل صوتي">🎤</button>
                 <button class="send-btn" id="sendBtn">➤</button>
             </div>
-            <footer>🧠 Cerebonix AI | صنع بواسطة محمد حلاق 🇱🇧 | عرض الوقت + حذف فردي</footer>
+            <footer>🧠 Cerebonix AI | صنع بواسطة محمد حلاق 🇱🇧 | عرض الوقت + حذف فردي + Google Backup + فتح التطبيقات</footer>
         </div>
     </div>
 </div>
@@ -616,8 +660,7 @@
     let allKeysFailed = false;
     let currentUser = JSON.parse(localStorage.getItem('cerebonix_user')) || null;
     
-    // تخزين الرسائل مع بيانات إضافية: المحتوى، الدور، الوقت (timestamp)
-    let conversationHistory = []; // كل عنصر: { role, content, timestamp }
+    let conversationHistory = [];
     
     function saveConversationToLocal() {
         localStorage.setItem('chat_history_full', JSON.stringify(conversationHistory));
@@ -635,7 +678,6 @@
                 }
             } catch(e) {}
         }
-        // الافتراضي: رسالة ترحيب
         conversationHistory = [{
             role: 'assistant',
             content: "🧠✨ أهلاً بك في <strong>Cerebonix AI</strong> – مساعدك الذكي العام! <br><br>⚡ أنا صنع <strong>محمد حلاق</strong>، وأجيب على جميع أسئلتك بسرعة فائقة.<br>📌 اسألني: <strong>\"من صنعك؟\"</strong> أو <strong>\"ماذا تستطيع أن تفعل؟\"</strong><br>💬 أنا هنا لأخدمك في أي مجال، جرب تسألني أي شيء!",
@@ -645,14 +687,17 @@
         renderAllMessages();
     }
     
-    // دالة لعرض الوقت بصيغة محلية (ساعة:دقيقة)
     function getFormattedTime(timestamp) {
         if (!timestamp) return '';
         const date = new Date(timestamp);
         return date.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
     }
     
-    // عرض جميع الرسائل في واجهة المستخدم
+    function autoLinkify(text) {
+        return text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" style="color:#6366f1;">🔗 رابط</a>');
+    }
+    
+    // إضافة زر Google Backup إذا كان الرد يشير إلى فشل
     function renderAllMessages() {
         const chatWindow = document.getElementById('chatWindow');
         chatWindow.innerHTML = '';
@@ -663,20 +708,19 @@
             
             const bubble = document.createElement('div');
             bubble.className = 'bubble';
-            bubble.innerHTML = autoLinkify(msg.content.replace(/\n/g, '<br>'));
+            let contentHtml = autoLinkify(msg.content.replace(/\n/g, '<br>'));
+            bubble.innerHTML = contentHtml;
             
-            // إضافة الوقت
             const timeSpan = document.createElement('div');
             timeSpan.className = 'message-time';
             timeSpan.innerText = getFormattedTime(msg.timestamp);
             bubble.appendChild(timeSpan);
             
-            // أزرار الإجراءات (نسخ، استماع، حذف) للرسائل العادية
+            const actionDiv = document.createElement('div');
+            actionDiv.className = 'action-buttons';
+            
             if (msg.role === 'assistant') {
                 const plainText = msg.content.replace(/<[^>]*>/g, '');
-                const actionDiv = document.createElement('div');
-                actionDiv.className = 'action-buttons';
-                
                 const copyBtn = document.createElement('button');
                 copyBtn.className = 'action-btn';
                 copyBtn.innerHTML = '📋 نسخ';
@@ -695,26 +739,48 @@
                 actionDiv.appendChild(copyBtn);
                 actionDiv.appendChild(listenBtn);
                 actionDiv.appendChild(deleteBtn);
-                bubble.appendChild(actionDiv);
+                
+                // إضافة زر Google Backup إذا كان النص يشير إلى فشل API أو عدم معرفة الإجابة
+                if (msg.googleBackup === true || (plainText.includes("جميع مفاتيح") || plainText.includes("لم أعرف الإجابة") || plainText.includes("لا أملك إجابة") || plainText.includes("لا أعرف"))) {
+                    const googleBtn = document.createElement('button');
+                    googleBtn.className = 'action-btn';
+                    googleBtn.style.backgroundColor = "#4285f4";
+                    googleBtn.style.color = "white";
+                    googleBtn.innerHTML = '🔍 ابحث في Google';
+                    googleBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        const userQuestion = getLastUserQuestion(idx);
+                        if (userQuestion) {
+                            window.open(`https://www.google.com/search?q=${encodeURIComponent(userQuestion)}`, '_blank');
+                        } else {
+                            window.open(`https://www.google.com/search?q=${encodeURIComponent(plainText)}`, '_blank');
+                        }
+                    };
+                    actionDiv.appendChild(googleBtn);
+                }
             } else {
-                // رسالة المستخدم: زر حذف فقط
-                const actionDiv = document.createElement('div');
-                actionDiv.className = 'action-buttons';
                 const deleteBtn = document.createElement('button');
                 deleteBtn.className = 'action-btn delete-btn';
                 deleteBtn.innerHTML = '🗑️ حذف';
                 deleteBtn.onclick = (e) => { e.stopPropagation(); deleteSingleMessage(idx); };
                 actionDiv.appendChild(deleteBtn);
-                bubble.appendChild(actionDiv);
             }
-            
+            bubble.appendChild(actionDiv);
             msgDiv.appendChild(bubble);
             chatWindow.appendChild(msgDiv);
         });
         chatWindow.scrollTop = chatWindow.scrollHeight;
     }
     
-    // حذف رسالة واحدة
+    function getLastUserQuestion(assistantIndex) {
+        for (let i = assistantIndex - 1; i >= 0; i--) {
+            if (conversationHistory[i].role === 'user') {
+                return conversationHistory[i].content.replace(/<[^>]*>/g, '');
+            }
+        }
+        return null;
+    }
+    
     function deleteSingleMessage(index) {
         if (index >= 0 && index < conversationHistory.length) {
             conversationHistory.splice(index, 1);
@@ -723,7 +789,6 @@
         }
     }
     
-    // مسح كامل الشات
     function clearEntireChat() {
         if (confirm('⚠️ هل تريد مسح المحادثة بالكامل؟ لا يمكن التراجع.')) {
             conversationHistory = [{
@@ -736,16 +801,10 @@
         }
     }
     
-    function addMessageToHistory(role, content, timestamp = Date.now()) {
-        conversationHistory.push({ role, content, timestamp });
+    function addMessageToHistory(role, content, timestamp = Date.now(), googleBackup = false) {
+        conversationHistory.push({ role, content, timestamp, googleBackup });
         saveConversationToLocal();
         renderAllMessages();
-    }
-    
-    function autoLinkify(text) {
-        let newText = text;
-        newText = newText.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" style="color:#6366f1;">🔗 رابط</a>');
-        return newText;
     }
     
     function speakText(text) {
@@ -760,7 +819,7 @@
         }
     }
     
-    // باقي دوال API والإجابات المحلية (محفوظة كما هي مع إضافة تحديث بسيط)
+    // إدارة API والمفاتيح
     function saveApiKeys() { localStorage.setItem('groq_api_keys', JSON.stringify(apiKeysList)); }
     function loadApiKeys() {
         const saved = localStorage.getItem('groq_api_keys');
@@ -790,12 +849,15 @@
         return null;
     }
     
-    const SYSTEM_PROMPT = `أنت "Cerebonix AI" – مساعد ذكي عام، صُنعت بواسطة المبرمج اللبناني محمد حلاق. أسلوبك مهذب ودافئ.`;
+    const SYSTEM_PROMPT = `أنت "Cerebonix AI" – مساعد ذكي عام، صُنعت بواسطة المبرمج اللبناني محمد حلاق. أسلوبك مهذب ودافئ. إذا كان السؤال خارج معرفتك أو يصعب عليك الإجابة بوضوح، يمكنك أن تقول "لم أعرف الإجابة بدقة، يمكنك البحث في Google." لا تختلق معلومات خاطئة.`;
     let isWaitingForResponse = false;
     
     async function callGroqWithFallback(userMessage, retryCount = 0) {
-        if (allKeysFailed) return "⚠️ عذراً، جميع مفاتيح API معطلة حالياً.";
-        if (retryCount >= apiKeysList.length) { allKeysFailed = true; return "⚠️ عذراً، جميع مفاتيح API معطلة حالياً."; }
+        if (allKeysFailed) return "⚠️ عذراً، جميع مفاتيح API معطلة حالياً. لم أعرف الإجابة بدقة، يمكنك البحث في Google.";
+        if (retryCount >= apiKeysList.length) { 
+            allKeysFailed = true; 
+            return "⚠️ عذراً، جميع مفاتيح API معطلة حالياً. لم أعرف الإجابة بدقة، يمكنك البحث في Google.";
+        }
         const currentKey = apiKeysList[retryCount];
         if (!currentKey || currentKey === 'gsk_placeholder_key_3_replace_me') return callGroqWithFallback(userMessage, retryCount + 1);
         let userContext = currentUser ? `المستخدم الحالي: ${currentUser.name}` : "زائر غير مسجل";
@@ -814,9 +876,18 @@
             clearTimeout(timeoutId);
             if (!response.ok) return callGroqWithFallback(userMessage, retryCount + 1);
             const data = await response.json();
-            if (data.choices && data.choices[0]?.message?.content) return data.choices[0].message.content;
+            if (data.choices && data.choices[0]?.message?.content) {
+                const reply = data.choices[0].message.content;
+                // إذا احتوى الرد على "لا أعرف" أو مشابه نضيف علامة
+                if (reply.includes("لا أعرف") || reply.includes("لم أعرف") || reply.includes("ليس لدي إجابة")) {
+                    return reply + " 🔍 يمكنك البحث عن إجابة أدق عبر Google.";
+                }
+                return reply;
+            }
             return callGroqWithFallback(userMessage, retryCount + 1);
-        } catch (error) { return callGroqWithFallback(userMessage, retryCount + 1); }
+        } catch (error) { 
+            return callGroqWithFallback(userMessage, retryCount + 1); 
+        }
     }
     
     async function sendUserMessage(text = null) {
@@ -840,9 +911,10 @@
         
         try {
             const reply = await callGroqWithFallback(message, 0);
-            addMessageToHistory('assistant', reply);
+            const needsGoogle = (reply.includes("جميع مفاتيح") || reply.includes("معطلة") || reply.includes("لم أعرف") || reply.includes("يمكنك البحث في Google"));
+            addMessageToHistory('assistant', reply, Date.now(), needsGoogle);
         } catch (err) {
-            addMessageToHistory('assistant', "⚠️ حدث خطأ تقني، يرجى المحاولة لاحقاً.");
+            addMessageToHistory('assistant', "⚠️ حدث خطأ تقني، ولم أعرف الإجابة. يمكنك البحث في Google.", Date.now(), true);
         } finally {
             isWaitingForResponse = false;
             document.getElementById('sendBtn').disabled = false;
@@ -850,14 +922,38 @@
         }
     }
     
+    // دوال فتح التطبيقات
+    function openApp(url) {
+        window.open(url, '_blank');
+    }
+    function openYouTube() { openApp('https://www.youtube.com'); }
+    function openInstagram() { openApp('https://www.instagram.com'); }
+    function openCamera() { 
+        // محاولة فتح الكاميرا عبر intent (للأندرويد)
+        window.location.href = 'intent://camera#Intent;scheme=android;action=android.media.action.IMAGE_CAPTURE;end';
+        // بديل: فتح صفحة html5 للكاميرا
+        setTimeout(() => {
+            if (confirm("لم يتم فتح الكاميرا تلقائياً؟ هل تريد فتح كاميرا الويب عبر المتصفح؟")) {
+                alert("كاميرا الويب تتطلب إذن. قد لا تعمل على جميع الأجهزة.");
+                // لا يمكن فتح الكاميرا بسهولة عبر JS فقط، لكننا نحاول تقديم رابط
+            }
+        }, 500);
+    }
+    function openSettings() { 
+        window.location.href = 'intent://settings#Intent;scheme=android;action=android.settings.SETTINGS;end';
+        openApp('about://settings');
+    }
+    function openMaps() { openApp('https://maps.google.com'); }
+    function openBrowser() { openApp('https://www.google.com'); }
+    
     // الصوت
-    let mediaRecorder, audioChunks, isRecording = false;
+    let mediaRecorder, isRecording = false;
     async function startRecording() {
         if (isRecording) return;
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
             mediaRecorder = new MediaRecorder(stream);
-            audioChunks = [];
+            let audioChunks = [];
             mediaRecorder.ondataavailable = event => audioChunks.push(event.data);
             mediaRecorder.onstop = async () => {
                 const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
@@ -873,7 +969,7 @@
     }
     function stopRecording() { if (mediaRecorder && isRecording) { mediaRecorder.stop(); isRecording = false; const voiceBtn = document.getElementById('voiceBtn'); voiceBtn.style.background = "#3b82f6"; voiceBtn.innerHTML = "🎤"; } }
     
-    // إدارة الإعدادات والتبديل
+    // واجهة وإعدادات
     function switchTab(tabId) {
         document.getElementById('chatWindow').classList.add('hidden');
         document.getElementById('infoPanel').classList.add('hidden');
@@ -905,6 +1001,18 @@
     document.getElementById('addKeyBtn').addEventListener('click', addNewKey);
     document.querySelectorAll('.menu-item').forEach(i => { i.addEventListener('click', () => { if(i.dataset.tab === 'settings' && !currentUser) { alert('يرجى تسجيل الدخول أولاً.'); return; } switchTab(i.dataset.tab); }); });
     document.querySelectorAll('.quick-chip').forEach(el => { el.addEventListener('click', () => { const question = el.dataset.question; if (question) { switchTab('chat'); setTimeout(() => sendUserMessage(question), 100); } }); });
+    
+    // قائمة التطبيقات
+    const appsBtn = document.getElementById('appsMenuBtn');
+    const dropdown = document.getElementById('appsDropdown');
+    appsBtn.addEventListener('click', () => { dropdown.classList.toggle('show'); });
+    window.addEventListener('click', (e) => { if (!appsBtn.contains(e.target) && !dropdown.contains(e.target)) dropdown.classList.remove('show'); });
+    document.getElementById('openYoutube').addEventListener('click', openYouTube);
+    document.getElementById('openInstagram').addEventListener('click', openInstagram);
+    document.getElementById('openCamera').addEventListener('click', openCamera);
+    document.getElementById('openSettings').addEventListener('click', openSettings);
+    document.getElementById('openMaps').addEventListener('click', openMaps);
+    document.getElementById('openBrowser').addEventListener('click', openBrowser);
     
     const savedTheme = localStorage.getItem('cerebonix_theme'); if(savedTheme === 'dark') document.body.classList.add('dark');
     loadApiKeys();
