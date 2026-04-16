@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>Cerebonix AI - خلفية مثل واتساب | مساعد ذكي</title>
+    <title>NeuroSync Pro - نظام إدارة مفاتيح آمن</title>
     <style>
         * {
             margin: 0;
@@ -33,6 +33,9 @@
             --time-stamp: #94a3b8;
             --highlight-bg: #fde047;
             --highlight-text: #1e2a3e;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
         }
 
         body.dark {
@@ -113,38 +116,41 @@
             z-index: 15;
         }
 
+        /* شريط الخروج المصغر - سهم صغير فقط */
         .fullscreen-exit-bar {
             display: none;
             position: fixed;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(10px);
-            padding: 8px 16px;
-            border-radius: 50px;
+            top: 16px;
+            left: 16px;
+            background: rgba(0,0,0,0.65);
+            backdrop-filter: blur(8px);
+            border-radius: 40px;
             z-index: 10000;
-            gap: 12px;
             align-items: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.2);
+            justify-content: center;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.25);
+            padding: 0;
         }
         .fullscreen-exit-bar button {
-            background: #ef4444;
+            background: transparent;
             border: none;
-            padding: 6px 16px;
+            padding: 10px 14px;
             border-radius: 40px;
             color: white;
             font-weight: bold;
             cursor: pointer;
-            font-size: 0.8rem;
+            font-size: 1.2rem;
             display: flex;
             align-items: center;
             gap: 6px;
+            transition: 0.2s;
+        }
+        .fullscreen-exit-bar button:hover {
+            background: rgba(255,255,255,0.2);
         }
         .fullscreen-exit-bar span {
-            color: white;
-            font-size: 0.75rem;
+            display: none; /* إخفاء النص، يبقى السهم فقط */
         }
         body.fullscreen-chat-mode .fullscreen-exit-bar {
             display: flex;
@@ -242,7 +248,7 @@
         }
 
         .sidebar {
-            width: 260px;
+            width: 280px;
             background: var(--surface);
             border-left: 1px solid var(--border-light);
             display: flex;
@@ -286,7 +292,6 @@
             position: relative;
         }
 
-        /* حاوية الشات مع خلفية مثل واتساب */
         .chat-window {
             flex: 1;
             overflow-y: auto;
@@ -440,7 +445,7 @@
             cursor: not-allowed;
         }
 
-        .info-panel {
+        .info-panel, .settings-panel {
             padding: 20px;
             overflow-y: auto;
         }
@@ -466,12 +471,12 @@
             }
             .sidebar {
                 position: fixed;
-                right: -260px;
+                right: -280px;
                 top: 65px;
                 bottom: 0;
                 z-index: 1000;
                 background: var(--card-bg);
-                width: 240px;
+                width: 260px;
                 border-radius: 20px 0 0 20px;
                 box-shadow: -5px 0 20px rgba(0,0,0,0.3);
             }
@@ -823,6 +828,104 @@
             background: #ef4444;
             margin-top: 10px;
         }
+
+        /* Styles for API Keys Management */
+        .key-item {
+            background: var(--border-light);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .key-info {
+            flex: 1;
+            font-size: 0.8rem;
+            font-family: monospace;
+            word-break: break-all;
+        }
+        .delete-key-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            transition: 0.2s;
+        }
+        .delete-key-btn:hover {
+            opacity: 0.8;
+            transform: scale(0.95);
+        }
+        .add-key-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid var(--border-light);
+        }
+        .key-input-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        .key-input-group input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 12px;
+            border: 1px solid var(--border-light);
+            background: var(--bg-body);
+            color: var(--text-primary);
+            font-family: monospace;
+            font-size: 0.8rem;
+        }
+        .btn-success {
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .keys-status {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 12px;
+            background: var(--surface);
+            border: 1px solid var(--border-light);
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+        .status-success {
+            background: var(--success);
+            color: white;
+        }
+        .status-error {
+            background: var(--danger);
+            color: white;
+        }
+        .status-warning {
+            background: var(--warning);
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -830,8 +933,8 @@
     <div class="header">
         <div class="logo-area">
             <div class="logo-icon">🧠</div>
-            <div class="logo-text">Cerebonix AI</div>
-            <span class="badge">⚡خلفية واتساب</span>
+            <div class="logo-text">NeuroSync Pro</div>
+            <span class="badge">🔐 آمن</span>
         </div>
         <div class="controls">
             <span id="userGreetingSpan" class="greeting-user hidden"></span>
@@ -847,23 +950,23 @@
     </div>
 
     <div class="fullscreen-exit-bar" id="fullscreenExitBar">
-        <span>⛶ وضع ملء الشاشة نشط</span>
-        <button id="exitFullscreenBtn">✕ خروج</button>
+        <button id="exitFullscreenBtn">↖️</button>
+        <span>خروج</span>
     </div>
 
     <div class="main-layout">
         <div class="sidebar" id="sidebar">
             <div class="menu-item active" data-tab="chat">💬 المحادثة</div>
             <div class="menu-item" data-tab="info">ℹ️ معلومات</div>
-            <div class="menu-item" data-tab="settings" id="settingsMenuItem">⚙️ إعدادات API</div>
+            <div class="menu-item" data-tab="settings" id="settingsMenuItem">⚙️ إدارة المفاتيح</div>
         </div>
         <div id="overlay" class="overlay"></div>
 
         <div class="content-panel">
-            <div id="apiWarning" class="api-warning hidden">⚠️ لم يتم إدخال مفتاح API بعد</div>
+            <div id="apiWarning" class="api-warning hidden">⚠️ لا توجد مفاتيح API صالحة. الرجاء إضافة مفتاح في الإعدادات</div>
             <div class="quick-buttons" id="quickButtons">
                 <div class="quick-chip" data-question="من صنعك؟">🤖 من صنعك؟</div>
-                <div class="quick-chip" data-question="ما هو Cerebonix AI؟">🧠 ما هو Cerebonix؟</div>
+                <div class="quick-chip" data-question="ما هو NeuroSync Pro؟">🧠 ما هو NeuroSync Pro؟</div>
                 <div class="quick-chip" data-question="أهلاً بك">👋 أهلاً بك</div>
                 <div class="quick-chip" data-question="ماذا تستطيع أن تفعل؟">⚡ قدراتك</div>
                 <div class="quick-chip" data-question="ما هي اللغة التي تتحدثها؟">🗣️ اللغات</div>
@@ -872,14 +975,14 @@
             <div class="chat-window" id="chatWindow"></div>
 
             <div id="infoPanel" class="info-panel hidden"></div>
-            <div id="settingsPanel" class="info-panel hidden"></div>
+            <div id="settingsPanel" class="settings-panel hidden"></div>
 
             <div class="input-area">
-                <input type="text" id="messageInput" placeholder="اسألني أي شيء... أنا Cerebonix AI" autocomplete="off">
+                <input type="text" id="messageInput" placeholder="اسألني أي شيء... أنا NeuroSync Pro" autocomplete="off">
                 <button class="voice-btn" id="voiceBtn" title="تسجيل صوتي">🎤</button>
                 <button class="send-btn" id="sendBtn">➤</button>
             </div>
-            <footer>🧠 Cerebonix AI | صنع بواسطة محمد حلاق 🇱🇧 | خلفية مثل واتساب</footer>
+            <footer>🧠 NeuroSync Pro | صنع بواسطة محمد حلاق 🇱🇧 | نظام إدارة مفاتيح آمن</footer>
         </div>
     </div>
 </div>
@@ -916,15 +1019,96 @@
 <script>
     const REQUIRED_PASSWORD = "1234";
     let pendingAction = null;
-    let apiKeysList = ['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','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','gsk_placeholder_key_3_replace_me'];
+    let apiKeysList = [];
     let allKeysFailed = false;
-    let currentUser = JSON.parse(localStorage.getItem('cerebonix_user')) || null;
+    let currentUser = JSON.parse(localStorage.getItem('neuronsync_user')) || null;
     let conversationHistory = [];
     let isWaitingForResponse = false;
-    let mediaRecorder, isRecording = false;
-    let currentBgImage = localStorage.getItem('cerebonix_bg_image') || '';
+    let currentBgImage = localStorage.getItem('neuronsync_bg_image') || '';
     
-    function applyBackground() {
+    function loadApiKeys() {
+        const saved = localStorage.getItem('neuronsync_api_keys');
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                if (Array.isArray(parsed) && parsed.length > 0) apiKeysList = parsed;
+                else apiKeysList = [];
+            } catch(e) { apiKeysList = []; }
+        } else { apiKeysList = []; }
+        updateApiWarning();
+        updateKeysStatusUI();
+    }
+    
+    function saveApiKeys() {
+        localStorage.setItem('neuronsync_api_keys', JSON.stringify(apiKeysList));
+        updateApiWarning();
+        updateKeysStatusUI();
+    }
+    
+    function addApiKey(key) {
+        if (!key || key.trim() === '') return false;
+        const trimmedKey = key.trim();
+        if (apiKeysList.includes(trimmedKey)) { alert('⚠️ هذا المفتاح موجود بالفعل!'); return false; }
+        apiKeysList.push(trimmedKey);
+        saveApiKeys();
+        allKeysFailed = false;
+        alert('✅ تم إضافة المفتاح بنجاح!');
+        return true;
+    }
+    
+    function deleteApiKey(index) {
+        if (confirm('هل أنت متأكد من حذف هذا المفتاح؟')) {
+            apiKeysList.splice(index, 1);
+            saveApiKeys();
+            if (apiKeysList.length === 0) allKeysFailed = false;
+            alert('🗑️ تم حذف المفتاح');
+        }
+    }
+    
+    function updateKeysStatusUI() {
+        const container = document.getElementById('keysStatusList');
+        if (!container) return;
+        if (apiKeysList.length === 0) {
+            container.innerHTML = `<div class="keys-status"><span class="status-badge status-warning">⚠️ تحذير</span><p style="margin-top: 8px;">لا توجد مفاتيح API. يرجى إضافة مفتاح Groq API للبدء.</p></div>`;
+            return;
+        }
+        let html = `<div class="keys-status"><strong>🔑 المفاتيح النشطة (${apiKeysList.length})</strong><br><br>`;
+        apiKeysList.forEach((key, idx) => {
+            const maskedKey = key.substring(0, 15) + '...' + key.substring(key.length - 8);
+            html += `<div class="key-item"><div class="key-info">🔐 ${maskedKey}<br><small style="font-size: 0.65rem;">تم الحفظ محلياً</small></div><button class="delete-key-btn" onclick="deleteApiKey(${idx})">🗑️ حذف</button></div>`;
+        });
+        html += `</div>`;
+        container.innerHTML = html;
+    }
+    
+    function updateApiWarning() {
+        const warning = document.getElementById('apiWarning');
+        if (!warning) return;
+        if (apiKeysList.length === 0) { warning.classList.remove('hidden'); warning.innerHTML = '⚠️ لا توجد مفاتيح API. الرجاء إضافة مفتاح في إدارة المفاتيح'; }
+        else if (allKeysFailed) { warning.classList.remove('hidden'); warning.innerHTML = '⚠️ جميع مفاتيح API معطلة. يرجى التحقق منها أو إضافة مفاتيح جديدة'; }
+        else { warning.classList.add('hidden'); }
+    }
+    
+    async function testApiKeys() { /* يبقى كما هو */ 
+        if (apiKeysList.length === 0) { alert('❌ لا توجد مفاتيح لاختبارها.'); return; }
+        const statusDiv = document.getElementById('apiStatus');
+        if(statusDiv) statusDiv.innerHTML = '<span style="color: var(--warning);">🔄 جاري اختبار المفاتيح...</span>';
+        let workingCount = 0;
+        for (let i = 0; i < apiKeysList.length; i++) {
+            try {
+                const response = await fetch("https://api.groq.com/openai/v1/models", { method: 'GET', headers: { 'Authorization': `Bearer ${apiKeysList[i]}` } });
+                if (response.ok) workingCount++;
+            } catch(e) {}
+        }
+        if(statusDiv) {
+            if(workingCount>0){ statusDiv.innerHTML = `<span style="color: var(--success);">✅ ${workingCount} من ${apiKeysList.length} مفاتيح تعمل بشكل صحيح</span>`; allKeysFailed=false; }
+            else { statusDiv.innerHTML = `<span style="color: var(--danger);">❌ لا توجد مفاتيح صالحة. يرجى التحقق من مفاتيحك</span>`; allKeysFailed=true; }
+            setTimeout(() => { if(statusDiv) statusDiv.innerHTML = ''; }, 5000);
+        }
+        updateApiWarning();
+    }
+    
+    function applyBackground() { /* نفس الشيء */ 
         const chatWindow = document.getElementById('chatWindow');
         if (!chatWindow) return;
         if (currentBgImage && currentBgImage !== '') {
@@ -934,47 +1118,18 @@
                 chatWindow.style.backgroundPosition = 'center';
                 chatWindow.style.backgroundRepeat = 'no-repeat';
                 chatWindow.style.backgroundColor = 'transparent';
-            } else if (currentBgImage === 'gradient1') {
-                chatWindow.style.backgroundImage = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-                chatWindow.style.backgroundSize = 'cover';
-                chatWindow.style.backgroundColor = 'transparent';
-            } else if (currentBgImage === 'gradient2') {
-                chatWindow.style.backgroundImage = 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)';
-                chatWindow.style.backgroundSize = 'cover';
-            } else if (currentBgImage === 'gradient3') {
-                chatWindow.style.backgroundImage = 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)';
-                chatWindow.style.backgroundSize = 'cover';
-            } else if (currentBgImage === 'gradient4') {
-                chatWindow.style.backgroundImage = 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)';
-                chatWindow.style.backgroundSize = 'cover';
-            } else {
-                chatWindow.style.backgroundImage = 'none';
-                chatWindow.style.backgroundColor = 'var(--bg-body)';
-            }
-        } else {
-            chatWindow.style.backgroundImage = 'none';
-            chatWindow.style.backgroundColor = 'var(--bg-body)';
-        }
-        if (document.body.classList.contains('dark') && !currentBgImage) {
-            chatWindow.style.backgroundColor = '#0f172a';
-        }
+            } else if (currentBgImage === 'gradient1') chatWindow.style.backgroundImage = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+            else if (currentBgImage === 'gradient2') chatWindow.style.backgroundImage = 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)';
+            else if (currentBgImage === 'gradient3') chatWindow.style.backgroundImage = 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)';
+            else if (currentBgImage === 'gradient4') chatWindow.style.backgroundImage = 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)';
+            else { chatWindow.style.backgroundImage = 'none'; chatWindow.style.backgroundColor = 'var(--bg-body)'; }
+        } else { chatWindow.style.backgroundImage = 'none'; chatWindow.style.backgroundColor = 'var(--bg-body)'; }
     }
-    
-    function setBackground(value, save = true) {
-        currentBgImage = value;
-        if (save) localStorage.setItem('cerebonix_bg_image', value);
-        applyBackground();
-    }
-    
-    function resetBackground() {
-        currentBgImage = '';
-        localStorage.removeItem('cerebonix_bg_image');
-        applyBackground();
-    }
-    
-    function initBackgroundPicker() {
+    function setBackground(value, save = true) { currentBgImage = value; if (save) localStorage.setItem('neuronsync_bg_image', value); applyBackground(); }
+    function resetBackground() { currentBgImage = ''; localStorage.removeItem('neuronsync_bg_image'); applyBackground(); }
+    function initBackgroundPicker() { /* كما هو */ 
         const container = document.getElementById('bgOptionsContainer');
-        if (!container) return;
+        if(!container) return;
         const presets = [
             { name: 'بدون خلفية', value: '', thumb: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="60" viewBox="0 0 100 60"%3E%3Crect width="100" height="60" fill="%23e2e8f0"/%3E%3Ctext x="50" y="35" font-size="12" text-anchor="middle" fill="%23666"%3Eسادة%3C/text%3E%3C/svg%3E' },
             { name: 'تدرج بنفسجي', value: 'gradient1', thumb: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="60"%3E%3Cdefs%3E%3ClinearGradient id="g" x1="0%25" y1="0%25" x2="100%25" y2="100%25"%3E%3Cstop offset="0%25" stop-color="%23667eea"/%3E%3Cstop offset="100%25" stop-color="%23764ba2"/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width="100" height="60" fill="url(%23g)"/%3E%3C/svg%3E' },
@@ -988,24 +1143,20 @@
             option.className = 'bg-option';
             if ((preset.value === '' && !currentBgImage) || currentBgImage === preset.value) option.classList.add('selected');
             option.innerHTML = `<div class="bg-thumb" style="background-image: url('${preset.thumb}'); background-size:cover;"></div><div class="bg-label">${preset.name}</div>`;
-            option.onclick = () => {
-                setBackground(preset.value);
-                document.querySelectorAll('.bg-option').forEach(opt => opt.classList.remove('selected'));
-                option.classList.add('selected');
-            };
+            option.onclick = () => { setBackground(preset.value); document.querySelectorAll('.bg-option').forEach(opt => opt.classList.remove('selected')); option.classList.add('selected'); };
             container.appendChild(option);
         });
     }
     
-    function saveConversationToLocal() { localStorage.setItem('chat_history_full', JSON.stringify(conversationHistory)); }
+    function saveConversationToLocal() { localStorage.setItem('neuronsync_chat_history', JSON.stringify(conversationHistory)); }
     function loadConversationFromLocal() {
-        const saved = localStorage.getItem('chat_history_full');
+        const saved = localStorage.getItem('neuronsync_chat_history');
         if (saved) {
             try { const parsed = JSON.parse(saved); if (Array.isArray(parsed) && parsed.length) { conversationHistory = parsed; renderAllMessages(); return; } } catch(e) {}
         }
         conversationHistory = [{
             role: 'assistant',
-            content: "🧠✨ أهلاً بك في <strong>Cerebonix AI</strong> – مساعدك الذكي العام!<br><br>🎨 يمكنك الآن تغيير خلفية الشاشة مثل واتساب! اضغط زر 🖼️ خلفية واختر ما يناسبك.",
+            content: "🧠✨ أهلاً بك في <strong>NeuroSync Pro</strong> – مساعدك الذكي العام!<br><br>🔐 <strong>لبدء المحادثة:</strong><br>• اذهب إلى قائمة <strong>إدارة المفاتيح</strong><br>• أضف مفتاح Groq API الخاص بك<br>• يمكنك إضافة أكثر من مفتاح للتبديل التلقائي<br><br>🎨 يمكنك أيضاً تغيير خلفية الشاشة مثل واتساب!",
             timestamp: Date.now()
         }];
         saveConversationToLocal();
@@ -1064,26 +1215,77 @@
     
     function deleteSingleMessage(index) { if (index >= 0 && index < conversationHistory.length) { conversationHistory.splice(index, 1); saveConversationToLocal(); renderAllMessages(); } }
     function clearEntireChatSecured() { if (!currentUser) { alert('يجب تسجيل الدخول أولاً.'); return; } showPasswordDialog('clearChat', () => { conversationHistory = [{ role: 'assistant', content: "🧠 تم مسح المحادثة بنجاح.", timestamp: Date.now() }]; saveConversationToLocal(); renderAllMessages(); }); }
-    function logoutSecured() { if (!currentUser) return; showPasswordDialog('logout', () => { currentUser = null; localStorage.removeItem('cerebonix_user'); updateUserUI(); switchTab('chat'); alert('تم تسجيل الخروج'); }); }
+    function logoutSecured() { if (!currentUser) return; showPasswordDialog('logout', () => { currentUser = null; localStorage.removeItem('neuronsync_user'); updateUserUI(); switchTab('chat'); alert('تم تسجيل الخروج'); }); }
     function updateUserUI() { 
         const userGreetingSpan = document.getElementById('userGreetingSpan');
         const loginLogoutBtn = document.getElementById('loginLogoutBtn');
         const settingsMenuItem = document.getElementById('settingsMenuItem');
-        if (currentUser) { 
-            userGreetingSpan.classList.remove('hidden'); 
-            userGreetingSpan.innerHTML = `👋 ${currentUser.name.split(' ')[0]}`; 
-            loginLogoutBtn.textContent = '🚪 خروج'; 
-        } else { 
-            userGreetingSpan.classList.add('hidden'); 
-            loginLogoutBtn.textContent = '🔐 دخول'; 
-        }
+        if (currentUser) { userGreetingSpan.classList.remove('hidden'); userGreetingSpan.innerHTML = `👋 ${currentUser.name.split(' ')[0]}`; loginLogoutBtn.textContent = '🚪 خروج'; } 
+        else { userGreetingSpan.classList.add('hidden'); loginLogoutBtn.textContent = '🔐 دخول'; }
         if (settingsMenuItem) { if (!currentUser) settingsMenuItem.classList.add('hidden'); else settingsMenuItem.classList.remove('hidden'); }
     }
-    function handleLogin() { if(currentUser) { logoutSecured(); return; } let email = prompt("📧 البريد الإلكتروني:"); if(email === null) return; let name = prompt("👤 اسمك:"); if(name === null) return; if(name.trim() === "") name = "صديق"; currentUser = { email: email.trim(), name: name.trim() }; localStorage.setItem('cerebonix_user', JSON.stringify(currentUser)); updateUserUI(); alert(`مرحباً ${currentUser.name}!`); addMessageToHistory('assistant', `🎉 مرحباً ${currentUser.name}، أنا Cerebonix AI!`); }
+    function handleLogin() { if(currentUser) { logoutSecured(); return; } let email = prompt("📧 البريد الإلكتروني:"); if(email === null) return; let name = prompt("👤 اسمك:"); if(name === null) return; if(name.trim() === "") name = "صديق"; currentUser = { email: email.trim(), name: name.trim() }; localStorage.setItem('neuronsync_user', JSON.stringify(currentUser)); updateUserUI(); alert(`مرحباً ${currentUser.name}!`); addMessageToHistory('assistant', `🎉 مرحباً ${currentUser.name}، أنا NeuroSync Pro!`); }
     function addMessageToHistory(role, content, timestamp = Date.now()) { conversationHistory.push({ role, content, timestamp }); saveConversationToLocal(); renderAllMessages(); }
     function speakText(text) { if (window.speechSynthesis) { if (window.currentUtterance) window.speechSynthesis.cancel(); const cleanText = text.replace(/<[^>]*>/g, ''); const utterance = new SpeechSynthesisUtterance(cleanText); utterance.lang = 'ar-SA'; utterance.rate = 0.9; window.currentUtterance = utterance; window.speechSynthesis.speak(utterance); } }
-    async function sendUserMessage(text=null){ if(isWaitingForResponse) return; let message = text || document.getElementById('messageInput').value.trim(); if(!message) return; if(!text) document.getElementById('messageInput').value=''; addMessageToHistory('user', message); isWaitingForResponse=true; document.getElementById('sendBtn').disabled=true; document.getElementById('voiceBtn').disabled=true; try{ const reply=await callGroqWithFallback(message,0); addMessageToHistory('assistant', reply); } catch(err){ addMessageToHistory('assistant', "⚠️ حدث خطأ تقني."); } finally{ isWaitingForResponse=false; document.getElementById('sendBtn').disabled=false; document.getElementById('voiceBtn').disabled=false; } }
-    async function callGroqWithFallback(userMessage, retryCount=0) { if(allKeysFailed) return "⚠️ عذراً، جميع مفاتيح API معطلة."; if(retryCount>=apiKeysList.length){ allKeysFailed=true; return "⚠️ عذراً، جميع مفاتيح API معطلة."; } const currentKey=apiKeysList[retryCount]; if(!currentKey || currentKey==='gsk_placeholder_key_3_replace_me') return callGroqWithFallback(userMessage, retryCount+1); try { const response=await fetch("https://api.groq.com/openai/v1/chat/completions",{ method:'POST', headers:{'Content-Type':'application/json','Authorization':`Bearer ${currentKey}`}, body:JSON.stringify({model:"llama-3.3-70b-versatile", messages:[{role:"system",content:"أنت Cerebonix AI."},...conversationHistory.slice(-10).map(m=>({role:m.role==="user"?"user":"assistant",content:m.content.replace(/<[^>]*>/g,'')})),{role:"user",content:userMessage}], temperature:0.7, max_tokens:800}) }); if(!response.ok) return callGroqWithFallback(userMessage, retryCount+1); const data=await response.json(); if(data.choices && data.choices[0]?.message?.content) return data.choices[0].message.content; return callGroqWithFallback(userMessage, retryCount+1); } catch(error){ return callGroqWithFallback(userMessage, retryCount+1); } }
+    
+    async function sendUserMessage(text=null){ 
+        if(isWaitingForResponse) return; 
+        if(apiKeysList.length === 0) {
+            alert('⚠️ الرجاء إضافة مفتاح API أولاً!\nاذهب إلى "إدارة المفاتيح" وأضف مفتاح Groq API');
+            switchTab('settings');
+            return;
+        }
+        let message = text || document.getElementById('messageInput').value.trim(); 
+        if(!message) return; 
+        if(!text) document.getElementById('messageInput').value=''; 
+        addMessageToHistory('user', message); 
+        isWaitingForResponse=true; 
+        document.getElementById('sendBtn').disabled=true; 
+        document.getElementById('voiceBtn').disabled=true; 
+        try{ 
+            const reply=await callGroqWithFallback(message,0); 
+            addMessageToHistory('assistant', reply); 
+        } catch(err){ 
+            addMessageToHistory('assistant', "⚠️ حدث خطأ تقني. تأكد من صحة مفاتيح API."); 
+        } finally{ 
+            isWaitingForResponse=false; 
+            document.getElementById('sendBtn').disabled=false; 
+            document.getElementById('voiceBtn').disabled=false; 
+        } 
+    }
+    
+    async function callGroqWithFallback(userMessage, retryCount=0) { 
+        if(allKeysFailed) return "⚠️ عذراً، جميع مفاتيح API معطلة. يرجى التحقق من المفاتيح في الإعدادات."; 
+        if(apiKeysList.length === 0) return "⚠️ لا توجد مفاتيح API. الرجاء إضافة مفتاح في الإعدادات.";
+        if(retryCount>=apiKeysList.length){ allKeysFailed=true; updateApiWarning(); return "⚠️ عذراً، جميع مفاتيح API معطلة. يرجى التحقق من المفاتيح أو إضافة مفاتيح جديدة."; } 
+        const currentKey=apiKeysList[retryCount]; 
+        if(!currentKey) return callGroqWithFallback(userMessage, retryCount+1); 
+        try { 
+            const response=await fetch("https://api.groq.com/openai/v1/chat/completions",{ 
+                method:'POST', 
+                headers:{'Content-Type':'application/json','Authorization':`Bearer ${currentKey}`}, 
+                body:JSON.stringify({
+                    model:"llama-3.3-70b-versatile", 
+                    messages:[{role:"system",content:"أنت NeuroSync Pro. من صنعك هو محمد حلاق وليس شركة ميتا ولا بطيخ. إذا سألك أحد عن الصانع، اجب بأن محمد حلاق هو المطور."},
+                    ...conversationHistory.slice(-10).filter(m => m.role !== 'system').map(m=>({role:m.role==="user"?"user":"assistant",content:m.content.replace(/<[^>]*>/g,'')})),
+                    {role:"user",content:userMessage}], 
+                    temperature:0.7, 
+                    max_tokens:800
+                }) 
+            }); 
+            if(!response.ok) return callGroqWithFallback(userMessage, retryCount+1); 
+            const data=await response.json(); 
+            if(data.choices && data.choices[0]?.message?.content) {
+                allKeysFailed = false;
+                updateApiWarning();
+                return data.choices[0].message.content; 
+            }
+            return callGroqWithFallback(userMessage, retryCount+1); 
+        } catch(error){ 
+            return callGroqWithFallback(userMessage, retryCount+1); 
+        } 
+    }
+    
     function showPasswordDialog(actionType, callback) { pendingAction = { type: actionType, callback }; const modal = document.getElementById('passwordModal'); const passwordInput = document.getElementById('passwordInput'); passwordInput.value = ''; modal.classList.add('open'); passwordInput.focus(); }
     function verifyPasswordAndExecute() { const entered = document.getElementById('passwordInput').value; if (entered === REQUIRED_PASSWORD) { if (pendingAction && pendingAction.callback) pendingAction.callback(); closePasswordDialog(); } else { alert('❌ كلمة المرور غير صحيحة!'); closePasswordDialog(); } }
     function closePasswordDialog() { document.getElementById('passwordModal').classList.remove('open'); pendingAction = null; }
@@ -1100,7 +1302,7 @@
         if(active) active.classList.add('active'); 
         if(window.innerWidth<=780){ document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('open'); } 
     }
-    function toggleTheme(){ document.body.classList.toggle('dark'); localStorage.setItem('cerebonix_theme', document.body.classList.contains('dark')?'dark':'light'); applyBackground(); }
+    function toggleTheme(){ document.body.classList.toggle('dark'); localStorage.setItem('neuronsync_theme', document.body.classList.contains('dark')?'dark':'light'); applyBackground(); }
     function toggleFullscreenMode() { 
         document.body.classList.toggle('fullscreen-chat-mode'); 
         const header = document.querySelector('.header'); 
@@ -1128,20 +1330,19 @@
         setTimeout(() => renderAllMessages(), 100); 
     }
     
-    // إعدادات البحث
+    // البحث
     const searchModal = document.getElementById('searchModal');
     const openSearchBtn = document.getElementById('openSearchBtn');
     const closeSearchBtn = document.getElementById('closeSearchBtn');
     const searchInput = document.getElementById('searchInput');
     const searchStats = document.getElementById('searchStats');
     const searchResults = document.getElementById('searchResults');
-    
     function performSearch(query) {
         if(!searchStats || !searchResults) return;
         if(!query || query.trim() === "") { searchStats.innerHTML = '📊 0 نتيجة'; searchResults.innerHTML = '<div class="no-results">✏️ اكتب كلمة للبحث</div>'; return; }
         const lowerQuery = query.trim().toLowerCase();
         const results = [];
-        conversationHistory.forEach((msg, idx) => { const plainContent = msg.content.replace(/<[^>]*>/g, ''); if(plainContent.toLowerCase().includes(lowerQuery)) results.push({ index: idx, role: msg.role, content: plainContent, timestamp: msg.timestamp, roleName: msg.role === 'user' ? '👤 المستخدم' : '🤖 Cerebonix' }); });
+        conversationHistory.forEach((msg, idx) => { const plainContent = msg.content.replace(/<[^>]*>/g, ''); if(plainContent.toLowerCase().includes(lowerQuery)) results.push({ index: idx, role: msg.role, content: plainContent, timestamp: msg.timestamp, roleName: msg.role === 'user' ? '👤 المستخدم' : '🤖 NeuroSync' }); });
         searchStats.innerHTML = `📊 ${results.length} نتيجة لـ "${query}"`;
         if(results.length === 0) { searchResults.innerHTML = '<div class="no-results">😔 لا توجد نتائج</div>'; return; }
         searchResults.innerHTML = '';
@@ -1157,13 +1358,11 @@
             searchResults.appendChild(item);
         });
     }
-    
     if(openSearchBtn) openSearchBtn.onclick = () => { searchModal.classList.add('open'); if(searchInput) searchInput.focus(); performSearch(searchInput?.value || ''); };
     if(closeSearchBtn) closeSearchBtn.onclick = () => searchModal.classList.remove('open');
     if(searchModal) searchModal.addEventListener('click', (e) => { if(e.target === searchModal) searchModal.classList.remove('open'); });
     if(searchInput) searchInput.addEventListener('input', (e) => performSearch(e.target.value));
     
-    // رفع الصور
     function setupBgUpload() { 
         const uploadBtn = document.getElementById('uploadBgBtn'); 
         const fileInput = document.getElementById('bgFileInput'); 
@@ -1179,17 +1378,47 @@
         if(bgModal) bgModal.addEventListener('click', (e) => { if(e.target === bgModal) bgModal.classList.remove('open'); }); 
     }
     
-    // الأحداث
+    function setupSettingsPanel() {
+        const settingsPanel = document.getElementById('settingsPanel');
+        if(!settingsPanel) return;
+        settingsPanel.innerHTML = `
+            <h2>⚙️ إدارة مفاتيح API</h2>
+            <hr>
+            <div id="keysStatusList"></div>
+            <div class="add-key-section">
+                <h3>➕ إضافة مفتاح جديد</h3>
+                <div class="key-input-group">
+                    <input type="text" id="newApiKeyInput" placeholder="أدخل مفتاح Groq API" autocomplete="off">
+                    <button id="addKeyBtn" class="btn-success">➕ إضافة</button>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button id="testAllKeysBtn" class="btn-warning">🧪 اختبار جميع المفاتيح</button>
+                </div>
+                <div id="apiStatus" style="margin-top: 15px;"></div>
+                <hr style="margin: 15px 0;">
+                <small>🔐 المفاتيح تُحفظ محلياً في متصفحك فقط. يمكنك إضافة أكثر من مفتاح للتبديل التلقائي عند فشل أحدها.</small>
+            </div>
+        `;
+        const addKeyBtn = document.getElementById('addKeyBtn');
+        const newKeyInput = document.getElementById('newApiKeyInput');
+        const testAllKeysBtn = document.getElementById('testAllKeysBtn');
+        if(addKeyBtn) addKeyBtn.onclick = () => { const newKey = newKeyInput?.value.trim(); if(newKey && newKey.startsWith('gsk_')) { addApiKey(newKey); if(newKeyInput) newKeyInput.value = ''; updateKeysStatusUI(); } else { alert('⚠️ مفتاح Groq API يجب أن يبدأ بـ "gsk_"'); } };
+        if(newKeyInput) newKeyInput.onkeypress = (e) => { if(e.key === 'Enter' && addKeyBtn) addKeyBtn.click(); };
+        if(testAllKeysBtn) testAllKeysBtn.onclick = testApiKeys;
+        updateKeysStatusUI();
+    }
+    
+    // ربط الأحداث
     document.getElementById('sendBtn').addEventListener('click', () => sendUserMessage());
     document.getElementById('messageInput').addEventListener('keypress', (e) => { if(e.key==='Enter' && !isWaitingForResponse) sendUserMessage(); });
     document.getElementById('themeToggleBtn').addEventListener('click', toggleTheme);
     document.getElementById('clearChatBtn').addEventListener('click', clearEntireChatSecured);
-    document.getElementById('saveChatBtn').addEventListener('click', () => { if(conversationHistory.length===0) return alert('لا توجد محادثة'); const text = conversationHistory.map(m=>`[${getFormattedTime(m.timestamp)}] ${m.role==='user'?'👤':'🤖'}: ${m.content.replace(/<[^>]*>/g,'')}`).join('\n\n'); const blob = new Blob([text], {type:'text/plain'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `cerebonix_${Date.now()}.txt`; a.click(); URL.revokeObjectURL(a.href); });
+    document.getElementById('saveChatBtn').addEventListener('click', () => { if(conversationHistory.length===0) return alert('لا توجد محادثة'); const text = conversationHistory.map(m=>`[${getFormattedTime(m.timestamp)}] ${m.role==='user'?'👤':'🤖'}: ${m.content.replace(/<[^>]*>/g,'')}`).join('\n\n'); const blob = new Blob([text], {type:'text/plain'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `neuronsync_${Date.now()}.txt`; a.click(); URL.revokeObjectURL(a.href); });
     document.getElementById('menuToggleBtn').addEventListener('click', () => { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('overlay').classList.toggle('open'); });
     document.getElementById('overlay').addEventListener('click', () => { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('open'); });
     document.getElementById('loginLogoutBtn').addEventListener('click', handleLogin);
     document.getElementById('voiceBtn').addEventListener('click', () => { alert("التسجيل الصوتي يحتاج HTTPS"); });
-    document.querySelectorAll('.menu-item').forEach(i => { i.addEventListener('click', () => { if(i.dataset.tab === 'settings' && !currentUser) { alert('يرجى تسجيل الدخول أولاً.'); return; } switchTab(i.dataset.tab); }); });
+    document.querySelectorAll('.menu-item').forEach(i => { i.addEventListener('click', () => { if(i.dataset.tab === 'settings' && !currentUser) { alert('يرجى تسجيل الدخول أولاً.'); return; } switchTab(i.dataset.tab); if(i.dataset.tab === 'settings') setupSettingsPanel(); }); });
     document.querySelectorAll('.quick-chip').forEach(el => { el.addEventListener('click', () => { const question = el.dataset.question; if (question) { switchTab('chat'); setTimeout(() => sendUserMessage(question), 100); } }); });
     document.getElementById('fullscreenBtn').addEventListener('click', toggleFullscreenMode);
     document.getElementById('exitFullscreenBtn').addEventListener('click', toggleFullscreenMode);
@@ -1197,20 +1426,15 @@
     document.getElementById('confirmPasswordBtn')?.addEventListener('click', verifyPasswordAndExecute);
     document.getElementById('cancelPasswordBtn')?.addEventListener('click', closePasswordDialog);
     
-    const savedTheme = localStorage.getItem('cerebonix_theme'); if(savedTheme === 'dark') document.body.classList.add('dark');
+    const savedTheme = localStorage.getItem('neuronsync_theme'); if(savedTheme === 'dark') document.body.classList.add('dark');
     loadConversationFromLocal(); updateUserUI(); setupBgUpload(); applyBackground();
+    loadApiKeys();
     
     const infoPanel = document.getElementById('infoPanel');
-    if(infoPanel) infoPanel.innerHTML = `<h2>🧠 Cerebonix AI</h2><hr><p><strong>🤖 الاسم:</strong> Cerebonix AI</p><p><strong>👨‍💻 الصانع:</strong> محمد حلاق</p><p><strong>🎨 ميزة جديدة:</strong> خلفية مثل واتساب - اختر صورتك أو تدرج لوني!</p><p><strong>✨ مميزات:</strong> بحث، حماية، حفظ، وضع ملء الشاشة</p>`;
+    if(infoPanel) infoPanel.innerHTML = `<h2>🧠 NeuroSync Pro</h2><hr><p><strong>🤖 الاسم:</strong> NeuroSync Pro</p><p><strong>👨‍💻 الصانع:</strong> محمد حلاق</p><p><strong>🔐 نظام آمن:</strong> يتم تخزين مفاتيح API محلياً فقط</p><p><strong>✨ مميزات:</strong> بحث، حماية، حفظ، وضع ملء الشاشة، خلفية مخصصة</p><p><strong>🔑 إدارة المفاتيح:</strong> يمكنك إضافة أكثر من مفتاح والتبديل التلقائي بينهم</p>`;
     
-    const settingsPanel = document.getElementById('settingsPanel');
-    if(settingsPanel) settingsPanel.innerHTML = `<h2>⚙️ إعدادات API</h2><hr><div id="keysStatusList"></div><button id="testAllKeysBtn" style="background:var(--accent);color:white;border:none;padding:8px 16px;border-radius:30px;cursor:pointer;margin:5px;">اختبار المفاتيح</button><button id="addKeyBtn" style="background:var(--border-light);color:var(--text-primary);border:none;padding:8px 16px;border-radius:30px;cursor:pointer;">إضافة مفتاح</button><div id="apiStatus" style="margin-top:10px;"></div>`;
-    
-    function loadApiKeys() { const saved = localStorage.getItem('groq_api_keys'); if (saved) { try { const parsed = JSON.parse(saved); if (parsed && parsed.length) apiKeysList = parsed; } catch(e) {} } updateKeysStatusUI(); }
-    function updateKeysStatusUI() { const container = document.getElementById('keysStatusList'); if(container){ let html = '<strong>🔑 المفاتيح:</strong><br>'; apiKeysList.forEach((key, idx) => { const maskedKey = key.substring(0, 12) + '...'; html += `<div style="font-size:0.7rem; margin-top:4px;">${idx+1}. ${maskedKey} <span style="color:#22c55e;">✓</span></div>`; }); container.innerHTML = html; } }
-    loadApiKeys();
-    document.getElementById('testAllKeysBtn')?.addEventListener('click', () => alert('تم اختبار المفاتيح بنجاح'));
-    document.getElementById('addKeyBtn')?.addEventListener('click', () => { const newKey = prompt("أدخل مفتاح Groq API:"); if(newKey && newKey.trim()) { apiKeysList.push(newKey.trim()); localStorage.setItem('groq_api_keys', JSON.stringify(apiKeysList)); updateKeysStatusUI(); alert("✅ تم الإضافة!"); } });
+    window.updateKeysStatusUI = updateKeysStatusUI;
+    window.deleteApiKey = deleteApiKey;
 </script>
 </body>
 </html>
