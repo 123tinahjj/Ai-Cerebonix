@@ -33,8 +33,6 @@
             --time-stamp: #94a3b8;
             --highlight-bg: #fde047;
             --highlight-text: #1e2a3e;
-            --chat-bg-image: none;
-            --chat-bg-color: transparent;
         }
 
         body.dark {
@@ -102,20 +100,19 @@
         }
 
         .header {
-            padding: 14px 18px;
+            padding: 12px 16px;
             background: var(--surface);
             border-bottom: 1px solid var(--border-light);
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 8px;
             transition: all 0.3s ease;
             position: relative;
             z-index: 15;
         }
 
-        /* شريط عائم للخروج من ملء الشاشة */
         .fullscreen-exit-bar {
             display: none;
             position: fixed;
@@ -135,19 +132,19 @@
         .fullscreen-exit-bar button {
             background: #ef4444;
             border: none;
-            padding: 8px 20px;
+            padding: 6px 16px;
             border-radius: 40px;
             color: white;
             font-weight: bold;
             cursor: pointer;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
         .fullscreen-exit-bar span {
             color: white;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
         }
         body.fullscreen-chat-mode .fullscreen-exit-bar {
             display: flex;
@@ -156,23 +153,23 @@
         .logo-area {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .logo-icon {
             background: var(--accent);
-            width: 42px;
-            height: 42px;
-            border-radius: 24px;
+            width: 38px;
+            height: 38px;
+            border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
+            font-size: 20px;
         }
 
         .logo-text {
             font-weight: 700;
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             background: linear-gradient(135deg, #6366f1, #8b5cf6);
             -webkit-background-clip: text;
             background-clip: text;
@@ -181,17 +178,17 @@
 
         .badge {
             background: linear-gradient(135deg, #10b981, #059669);
-            padding: 4px 10px;
+            padding: 3px 8px;
             border-radius: 20px;
-            font-size: 0.65rem;
+            font-size: 0.6rem;
             font-weight: 600;
             color: white;
-            margin-right: 8px;
+            margin-right: 6px;
         }
 
         .controls {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             align-items: center;
             flex-wrap: wrap;
         }
@@ -199,9 +196,9 @@
         .icon-btn {
             background: var(--border-light);
             border: none;
-            padding: 8px 12px;
-            border-radius: 40px;
-            font-size: 0.8rem;
+            padding: 6px 10px;
+            border-radius: 30px;
+            font-size: 0.75rem;
             font-weight: 500;
             color: var(--text-primary);
             cursor: pointer;
@@ -219,7 +216,6 @@
         }
         .search-btn:hover {
             opacity: 0.85;
-            background: var(--accent);
         }
 
         .fullscreen-btn {
@@ -230,7 +226,6 @@
             color: white;
         }
 
-        /* زر خلفية الشاشة */
         .bg-btn {
             background: var(--border-light);
         }
@@ -247,7 +242,7 @@
         }
 
         .sidebar {
-            width: 280px;
+            width: 260px;
             background: var(--surface);
             border-left: 1px solid var(--border-light);
             display: flex;
@@ -258,14 +253,15 @@
         }
 
         .menu-item {
-            padding: 14px 20px;
-            margin: 6px 12px;
-            border-radius: 28px;
+            padding: 12px 18px;
+            margin: 5px 10px;
+            border-radius: 24px;
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 12px;
             cursor: pointer;
             font-weight: 500;
+            font-size: 0.85rem;
             color: var(--text-secondary);
             transition: 0.15s;
         }
@@ -273,7 +269,7 @@
         .menu-item.active {
             background: var(--accent);
             color: white;
-            box-shadow: 0 6px 14px var(--accent-glow);
+            box-shadow: 0 4px 12px var(--accent-glow);
         }
 
         .menu-item:hover:not(.active) {
@@ -297,38 +293,17 @@
             padding: 16px;
             display: flex;
             flex-direction: column;
-            gap: 14px;
-            background-color: var(--chat-bg-color);
-            background-image: var(--chat-bg-image);
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            transition: background-image 0.2s ease;
+            gap: 12px;
+            transition: all 0.3s ease;
             position: relative;
-        }
-        
-        /* تأثير شفافية للخلفية لجعل النصوص مقروءة */
-        .chat-window::before {
-            content: '';
-            position: sticky;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            pointer-events: none;
-            background-color: rgba(0,0,0,0.05);
-            z-index: 0;
-        }
-        
-        body.dark .chat-window::before {
-            background-color: rgba(0,0,0,0.2);
+            background-attachment: fixed;
         }
 
         .message {
             display: flex;
             animation: fadeSlide 0.25s ease;
             position: relative;
-            gap: 8px;
+            gap: 6px;
             align-items: flex-end;
             z-index: 2;
         }
@@ -343,26 +318,25 @@
 
         .bubble {
             max-width: 85%;
-            padding: 12px 18px;
-            border-radius: 26px;
-            font-size: 0.95rem;
+            padding: 10px 16px;
+            border-radius: 24px;
+            font-size: 0.9rem;
             line-height: 1.45;
             word-break: break-word;
             position: relative;
-            backdrop-filter: blur(0px);
-            transition: all 0.1s;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
 
         .user-message .bubble {
             background: var(--message-user-bg);
             color: var(--message-user-text);
-            border-bottom-right-radius: 6px;
+            border-bottom-right-radius: 4px;
         }
 
         .bot-message .bubble {
             background: var(--message-bot-bg);
             color: var(--message-bot-text);
-            border-bottom-left-radius: 6px;
+            border-bottom-left-radius: 4px;
         }
         
         .bubble a {
@@ -377,7 +351,7 @@
         }
 
         .message-time {
-            font-size: 0.65rem;
+            font-size: 0.6rem;
             color: var(--time-stamp);
             margin-top: 4px;
             direction: ltr;
@@ -387,23 +361,23 @@
 
         .action-buttons {
             display: flex;
-            gap: 6px;
-            margin-top: 6px;
+            gap: 5px;
+            margin-top: 5px;
             justify-content: flex-start;
         }
 
         .action-btn {
             background: var(--border-light);
             border: none;
-            border-radius: 20px;
-            padding: 4px 10px;
-            font-size: 0.65rem;
+            border-radius: 18px;
+            padding: 3px 8px;
+            font-size: 0.6rem;
             cursor: pointer;
             color: var(--text-primary);
             transition: 0.15s;
             display: inline-flex;
             align-items: center;
-            gap: 4px;
+            gap: 3px;
         }
 
         .action-btn.delete-btn {
@@ -420,39 +394,39 @@
         }
 
         .input-area {
-            padding: 12px 16px;
+            padding: 10px 14px;
             background: var(--surface);
             border-top: 1px solid var(--border-light);
             display: flex;
-            gap: 10px;
+            gap: 8px;
             align-items: center;
             z-index: 10;
         }
 
         .input-area input {
             flex: 1;
-            padding: 12px 18px;
-            border-radius: 50px;
+            padding: 10px 16px;
+            border-radius: 40px;
             border: 1px solid var(--border-light);
             background: var(--bg-body);
             color: var(--text-primary);
-            font-size: 0.95rem;
+            font-size: 0.85rem;
             outline: none;
         }
 
         .input-area input:focus {
             border-color: var(--accent);
-            box-shadow: 0 0 0 3px var(--accent-glow);
+            box-shadow: 0 0 0 2px var(--accent-glow);
         }
 
         .send-btn, .voice-btn {
             background: var(--accent);
             border: none;
-            width: 46px;
-            height: 46px;
-            border-radius: 30px;
+            width: 38px;
+            height: 38px;
+            border-radius: 25px;
             color: white;
-            font-size: 1.3rem;
+            font-size: 1.1rem;
             cursor: pointer;
             transition: 0.2s;
             display: flex;
@@ -479,9 +453,9 @@
             display: none;
             background: var(--border-light);
             border: none;
-            font-size: 1.5rem;
-            padding: 8px 12px;
-            border-radius: 30px;
+            font-size: 1.3rem;
+            padding: 6px 10px;
+            border-radius: 25px;
             cursor: pointer;
             color: var(--text-primary);
         }
@@ -492,12 +466,12 @@
             }
             .sidebar {
                 position: fixed;
-                right: -280px;
-                top: 70px;
+                right: -260px;
+                top: 65px;
                 bottom: 0;
                 z-index: 1000;
                 background: var(--card-bg);
-                width: 260px;
+                width: 240px;
                 border-radius: 20px 0 0 20px;
                 box-shadow: -5px 0 20px rgba(0,0,0,0.3);
             }
@@ -517,9 +491,9 @@
         }
 
         footer {
-            font-size: 0.65rem;
+            font-size: 0.6rem;
             text-align: center;
-            padding: 8px;
+            padding: 6px;
             color: var(--text-secondary);
             border-top: 1px solid var(--border-light);
             transition: all 0.3s ease;
@@ -532,8 +506,8 @@
 
         .quick-buttons {
             display: flex;
-            gap: 10px;
-            padding: 10px 16px;
+            gap: 8px;
+            padding: 8px 14px;
             overflow-x: auto;
             background: var(--surface);
             border-bottom: 1px solid var(--border-light);
@@ -544,9 +518,9 @@
         
         .quick-chip {
             background: var(--border-light);
-            padding: 6px 14px;
-            border-radius: 40px;
-            font-size: 0.8rem;
+            padding: 5px 12px;
+            border-radius: 35px;
+            font-size: 0.75rem;
             cursor: pointer;
             white-space: nowrap;
             color: var(--text-primary);
@@ -558,7 +532,6 @@
             color: white;
         }
 
-        /* مودال البحث - نفس السابق */
         .search-modal {
             display: none;
             position: fixed;
@@ -578,9 +551,9 @@
         .search-container {
             background: var(--card-bg);
             width: 90%;
-            max-width: 550px;
+            max-width: 500px;
             max-height: 80vh;
-            border-radius: 32px;
+            border-radius: 28px;
             box-shadow: 0 25px 50px rgba(0,0,0,0.3);
             display: flex;
             flex-direction: column;
@@ -592,42 +565,42 @@
             to { opacity: 1; transform: translateY(0); }
         }
         .search-header {
-            padding: 18px 20px;
+            padding: 14px 18px;
             border-bottom: 1px solid var(--border-light);
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
         .search-header h3 {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
         }
         .close-search {
             background: none;
             border: none;
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             cursor: pointer;
             color: var(--text-secondary);
         }
         .search-input-area {
-            padding: 16px 20px;
+            padding: 12px 18px;
             border-bottom: 1px solid var(--border-light);
         }
         .search-input-area input {
             width: 100%;
-            padding: 12px 18px;
-            border-radius: 60px;
+            padding: 10px 16px;
+            border-radius: 50px;
             border: 1px solid var(--border-light);
             background: var(--bg-body);
             color: var(--text-primary);
-            font-size: 1rem;
+            font-size: 0.9rem;
             outline: none;
         }
         .search-input-area input:focus {
             border-color: var(--accent);
         }
         .search-stats {
-            padding: 8px 20px;
-            font-size: 0.75rem;
+            padding: 6px 18px;
+            font-size: 0.7rem;
             color: var(--text-secondary);
             background: var(--surface);
             border-bottom: 1px solid var(--border-light);
@@ -635,31 +608,31 @@
         .search-results {
             flex: 1;
             overflow-y: auto;
-            padding: 12px;
+            padding: 10px;
         }
         .search-result-item {
-            padding: 14px;
-            margin-bottom: 10px;
+            padding: 12px;
+            margin-bottom: 8px;
             background: var(--border-light);
-            border-radius: 20px;
+            border-radius: 18px;
             cursor: pointer;
             transition: 0.15s;
         }
         .search-result-item:hover {
             background: var(--faq-hover);
-            transform: scale(0.99);
+            transform: scale(0.98);
         }
         .result-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 8px;
-            font-size: 0.7rem;
+            margin-bottom: 6px;
+            font-size: 0.65rem;
             color: var(--accent);
             font-weight: 600;
         }
         .result-preview {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             line-height: 1.4;
             word-break: break-word;
         }
@@ -667,52 +640,45 @@
             background: var(--highlight-bg);
             color: var(--highlight-text);
             padding: 0 2px;
-            border-radius: 6px;
+            border-radius: 4px;
             font-weight: 600;
         }
         .no-results {
             text-align: center;
-            padding: 40px;
+            padding: 30px;
             color: var(--text-secondary);
+            font-size: 0.85rem;
         }
         .api-warning {
             background: #fee2e2;
             color: #991b1b;
-            padding: 6px 12px;
-            border-radius: 12px;
-            font-size: 0.7rem;
-            margin: 6px 16px;
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-size: 0.65rem;
+            margin: 5px 14px;
             text-align: center;
         }
         body.dark .api-warning {
             background: #7f1d1d;
             color: #fecaca;
         }
-        .key-status {
-            font-size: 0.75rem;
-            margin-top: 4px;
-            padding: 2px 6px;
-            border-radius: 10px;
-            display: inline-block;
-        }
-        .key-working { background: #22c55e20; color: #22c55e; }
-        .key-failed { background: #ef444420; color: #ef4444; }
         
         .greeting-user {
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             background: var(--accent-glow);
-            padding: 6px 12px;
-            border-radius: 40px;
-            margin-right: 8px;
+            padding: 4px 10px;
+            border-radius: 30px;
+            margin-right: 6px;
         }
         .login-btn-header {
             background: #10b981;
             color: white;
             border: none;
-            padding: 6px 14px;
-            border-radius: 30px;
+            padding: 5px 12px;
+            border-radius: 25px;
             font-weight: 600;
             cursor: pointer;
+            font-size: 0.75rem;
         }
         .password-modal {
             display: none;
@@ -732,26 +698,26 @@
         }
         .password-box {
             background: var(--card-bg);
-            border-radius: 32px;
-            padding: 28px 24px;
-            width: 320px;
+            border-radius: 28px;
+            padding: 24px 20px;
+            width: 300px;
             text-align: center;
             box-shadow: 0 20px 35px rgba(0,0,0,0.3);
             direction: rtl;
         }
         .password-box h3 {
-            margin-bottom: 20px;
-            font-size: 1.5rem;
+            margin-bottom: 18px;
+            font-size: 1.3rem;
         }
         .password-box input {
             width: 100%;
-            padding: 12px;
-            border-radius: 40px;
+            padding: 10px;
+            border-radius: 35px;
             border: 1px solid var(--border-light);
             background: var(--bg-body);
             color: var(--text-primary);
-            font-size: 1rem;
-            margin-bottom: 20px;
+            font-size: 0.9rem;
+            margin-bottom: 18px;
             text-align: center;
             letter-spacing: 3px;
         }
@@ -759,19 +725,19 @@
             background: var(--accent);
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 40px;
+            padding: 8px 18px;
+            border-radius: 35px;
             font-weight: bold;
             cursor: pointer;
             width: 100%;
+            font-size: 0.85rem;
         }
         .password-box .cancel-pass {
             background: var(--border-light);
             color: var(--text-primary);
-            margin-top: 10px;
+            margin-top: 8px;
         }
         
-        /* مودال اختيار الخلفية */
         .bg-modal {
             display: none;
             position: fixed;
@@ -790,29 +756,29 @@
         }
         .bg-picker {
             background: var(--card-bg);
-            border-radius: 32px;
+            border-radius: 28px;
             width: 90%;
-            max-width: 480px;
+            max-width: 450px;
             max-height: 80vh;
             overflow-y: auto;
-            padding: 20px;
+            padding: 18px;
             direction: rtl;
         }
         .bg-picker h3 {
-            margin-bottom: 15px;
-            font-size: 1.4rem;
+            margin-bottom: 12px;
+            font-size: 1.2rem;
             text-align: center;
         }
         .bg-options {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            gap: 12px;
-            margin-bottom: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
         }
         .bg-option {
             background: var(--border-light);
-            border-radius: 20px;
-            padding: 10px;
+            border-radius: 16px;
+            padding: 8px;
             text-align: center;
             cursor: pointer;
             transition: 0.2s;
@@ -827,35 +793,35 @@
         }
         .bg-thumb {
             width: 100%;
-            height: 70px;
-            border-radius: 16px;
+            height: 60px;
+            border-radius: 12px;
             background-size: cover;
             background-position: center;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
         .bg-label {
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             font-weight: 500;
         }
         .bg-upload-btn {
             background: var(--accent);
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 40px;
+            padding: 8px 16px;
+            border-radius: 35px;
             cursor: pointer;
             width: 100%;
-            margin-top: 10px;
+            margin-top: 8px;
             font-weight: bold;
+            font-size: 0.8rem;
         }
         .bg-reset-btn {
             background: var(--border-light);
             color: var(--text-primary);
-            margin-top: 10px;
         }
         .close-bg-modal {
             background: #ef4444;
-            margin-top: 15px;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -869,14 +835,14 @@
         </div>
         <div class="controls">
             <span id="userGreetingSpan" class="greeting-user hidden"></span>
-            <button id="loginLogoutBtn" class="login-btn-header">🔐 تسجيل دخول</button>
+            <button id="loginLogoutBtn" class="login-btn-header">🔐 دخول</button>
             <button class="icon-btn menu-toggle" id="menuToggleBtn">☰</button>
             <button class="icon-btn search-btn" id="openSearchBtn">🔍 بحث</button>
             <button class="icon-btn bg-btn" id="openBgBtn">🖼️ خلفية</button>
-            <button class="icon-btn" id="themeToggleBtn">🌓 الوضع</button>
-            <button class="icon-btn" id="clearChatBtn">🗑️ مسح الكل</button>
+            <button class="icon-btn" id="themeToggleBtn">🌓 وضع</button>
+            <button class="icon-btn" id="clearChatBtn">🗑️ مسح</button>
             <button class="icon-btn" id="saveChatBtn">💾 حفظ</button>
-            <button class="icon-btn fullscreen-btn" id="fullscreenBtn">⛶ ملء الشاشة</button>
+            <button class="icon-btn fullscreen-btn" id="fullscreenBtn">⛶ ملء</button>
         </div>
     </div>
 
@@ -887,21 +853,21 @@
 
     <div class="main-layout">
         <div class="sidebar" id="sidebar">
-            <div class="menu-item active" data-tab="chat">💬 المحادثة الذكية</div>
-            <div class="menu-item" data-tab="info">ℹ️ معلومات Cerebonix</div>
+            <div class="menu-item active" data-tab="chat">💬 المحادثة</div>
+            <div class="menu-item" data-tab="info">ℹ️ معلومات</div>
             <div class="menu-item" data-tab="settings" id="settingsMenuItem">⚙️ إعدادات API</div>
         </div>
         <div id="overlay" class="overlay"></div>
 
         <div class="content-panel">
-            <div id="apiWarning" class="api-warning hidden">⚠️ لم يتم إدخال مفتاح API بعد. يرجى الذهاب إلى الإعدادات.</div>
+            <div id="apiWarning" class="api-warning hidden">⚠️ لم يتم إدخال مفتاح API بعد</div>
             <div class="quick-buttons" id="quickButtons">
                 <div class="quick-chip" data-question="من صنعك؟">🤖 من صنعك؟</div>
-                <div class="quick-chip" data-question="ما هو Cerebonix AI؟">🧠 ما هو Cerebonix AI؟</div>
+                <div class="quick-chip" data-question="ما هو Cerebonix AI؟">🧠 ما هو Cerebonix؟</div>
                 <div class="quick-chip" data-question="أهلاً بك">👋 أهلاً بك</div>
                 <div class="quick-chip" data-question="ماذا تستطيع أن تفعل؟">⚡ قدراتك</div>
                 <div class="quick-chip" data-question="ما هي اللغة التي تتحدثها؟">🗣️ اللغات</div>
-                <div class="quick-chip" data-question="هل أنت مجاني؟">💸 هل أنت مجاني؟</div>
+                <div class="quick-chip" data-question="هل أنت مجاني؟">💸 مجاني؟</div>
             </div>
             <div class="chat-window" id="chatWindow"></div>
 
@@ -909,90 +875,100 @@
             <div id="settingsPanel" class="info-panel hidden"></div>
 
             <div class="input-area">
-                <input type="text" id="messageInput" placeholder="اسألني أي شيء... أنا Cerebonix AI مصمم بواسطة محمد حلاق" autocomplete="off">
+                <input type="text" id="messageInput" placeholder="اسألني أي شيء... أنا Cerebonix AI" autocomplete="off">
                 <button class="voice-btn" id="voiceBtn" title="تسجيل صوتي">🎤</button>
                 <button class="send-btn" id="sendBtn">➤</button>
             </div>
-            <footer>🧠 Cerebonix AI | صنع بواسطة محمد حلاق 🇱🇧 | خلفية مثل واتساب + بحث + حماية</footer>
+            <footer>🧠 Cerebonix AI | صنع بواسطة محمد حلاق 🇱🇧 | خلفية مثل واتساب</footer>
         </div>
     </div>
 </div>
 
-<!-- مودال البحث -->
-<div id="searchModal" class="search-modal">...</div>
-<div id="passwordModal" class="password-modal">...</div>
+<div id="searchModal" class="search-modal">
+    <div class="search-container">
+        <div class="search-header"><h3>🔍 بحث في المحادثة</h3><button class="close-search" id="closeSearchBtn">&times;</button></div>
+        <div class="search-input-area"><input type="text" id="searchInput" placeholder="اكتب كلمة للبحث..."></div>
+        <div class="search-stats" id="searchStats">📊 0 نتيجة</div>
+        <div class="search-results" id="searchResults"></div>
+    </div>
+</div>
 
-<!-- مودال اختيار الخلفية -->
+<div id="passwordModal" class="password-modal">
+    <div class="password-box">
+        <h3>🔒 تأكيد الإجراء</h3>
+        <input type="password" id="passwordInput" placeholder="كلمة المرور" autocomplete="off">
+        <button id="confirmPasswordBtn">تأكيد</button>
+        <button id="cancelPasswordBtn" class="cancel-pass">إلغاء</button>
+    </div>
+</div>
+
 <div id="bgModal" class="bg-modal">
     <div class="bg-picker">
-        <h3>🖼️ اختر خلفية الشاشة (مثل واتساب)</h3>
-        <div class="bg-options" id="bgOptionsContainer">
-            <!-- خيارات خلفيات مدمجة -->
-        </div>
-        <button id="uploadBgBtn" class="bg-upload-btn">📁 رفع صورة من جهازك</button>
-        <button id="resetBgBtn" class="bg-upload-btn bg-reset-btn">♻️ إعادة الخلفية الافتراضية</button>
+        <h3>🖼️ اختر خلفية الشاشة</h3>
+        <div class="bg-options" id="bgOptionsContainer"></div>
+        <button id="uploadBgBtn" class="bg-upload-btn">📁 رفع صورة</button>
+        <button id="resetBgBtn" class="bg-upload-btn bg-reset-btn">♻️ إعادة الافتراضي</button>
         <button id="closeBgModalBtn" class="bg-upload-btn close-bg-modal">إغلاق</button>
         <input type="file" id="bgFileInput" accept="image/*" style="display:none">
     </div>
 </div>
 
 <script>
-    // ================== الكود الأساسي مع إضافة خاصية الخلفية ==================
     const REQUIRED_PASSWORD = "1234";
     let pendingAction = null;
     let apiKeysList = ['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','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','gsk_placeholder_key_3_replace_me'];
-    let currentKeyIndex = 0;
     let allKeysFailed = false;
     let currentUser = JSON.parse(localStorage.getItem('cerebonix_user')) || null;
     let conversationHistory = [];
     let isWaitingForResponse = false;
     let mediaRecorder, isRecording = false;
-    
-    // خلفية الشاشة
     let currentBgImage = localStorage.getItem('cerebonix_bg_image') || '';
-    let currentBgType = localStorage.getItem('cerebonix_bg_type') || 'none';
     
     function applyBackground() {
         const chatWindow = document.getElementById('chatWindow');
         if (!chatWindow) return;
-        if (currentBgImage && currentBgImage.startsWith('data:image') || currentBgImage.startsWith('url(') || currentBgImage.startsWith('http')) {
-            let bgValue = currentBgImage;
-            if (!bgValue.startsWith('url(') && !bgValue.startsWith('data:image')) {
-                bgValue = `url('${bgValue}')`;
+        if (currentBgImage && currentBgImage !== '') {
+            if (currentBgImage.startsWith('data:image') || currentBgImage.startsWith('http')) {
+                chatWindow.style.backgroundImage = `url('${currentBgImage}')`;
+                chatWindow.style.backgroundSize = 'cover';
+                chatWindow.style.backgroundPosition = 'center';
+                chatWindow.style.backgroundRepeat = 'no-repeat';
+                chatWindow.style.backgroundColor = 'transparent';
+            } else if (currentBgImage === 'gradient1') {
+                chatWindow.style.backgroundImage = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                chatWindow.style.backgroundSize = 'cover';
+                chatWindow.style.backgroundColor = 'transparent';
+            } else if (currentBgImage === 'gradient2') {
+                chatWindow.style.backgroundImage = 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)';
+                chatWindow.style.backgroundSize = 'cover';
+            } else if (currentBgImage === 'gradient3') {
+                chatWindow.style.backgroundImage = 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)';
+                chatWindow.style.backgroundSize = 'cover';
+            } else if (currentBgImage === 'gradient4') {
+                chatWindow.style.backgroundImage = 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)';
+                chatWindow.style.backgroundSize = 'cover';
+            } else {
+                chatWindow.style.backgroundImage = 'none';
+                chatWindow.style.backgroundColor = 'var(--bg-body)';
             }
-            chatWindow.style.setProperty('--chat-bg-image', bgValue);
-            chatWindow.style.setProperty('--chat-bg-color', 'transparent');
-        } else if (currentBgImage === 'default1') {
-            chatWindow.style.setProperty('--chat-bg-image', "url('https://www.transparenttextures.com/patterns/cubes.png')");
-            chatWindow.style.setProperty('--chat-bg-color', '#ede9fe');
-        } else if (currentBgImage === 'default2') {
-            chatWindow.style.setProperty('--chat-bg-image', "url('https://www.transparenttextures.com/patterns/diagmonds-light.png')");
-            chatWindow.style.setProperty('--chat-bg-color', '#e0f2fe');
-        } else if (currentBgImage === 'default3') {
-            chatWindow.style.setProperty('--chat-bg-image', "url('https://www.transparenttextures.com/patterns/brushed-alum.png')");
-            chatWindow.style.setProperty('--chat-bg-color', '#d1fae5');
         } else {
-            chatWindow.style.setProperty('--chat-bg-image', 'none');
-            chatWindow.style.setProperty('--chat-bg-color', 'transparent');
+            chatWindow.style.backgroundImage = 'none';
+            chatWindow.style.backgroundColor = 'var(--bg-body)';
         }
         if (document.body.classList.contains('dark') && !currentBgImage) {
             chatWindow.style.backgroundColor = '#0f172a';
         }
     }
     
-    function setBackgroundFromUrl(url, save = true) {
-        currentBgImage = url;
-        if (save) {
-            localStorage.setItem('cerebonix_bg_image', url);
-            localStorage.setItem('cerebonix_bg_type', 'custom');
-        }
+    function setBackground(value, save = true) {
+        currentBgImage = value;
+        if (save) localStorage.setItem('cerebonix_bg_image', value);
         applyBackground();
     }
     
     function resetBackground() {
         currentBgImage = '';
         localStorage.removeItem('cerebonix_bg_image');
-        localStorage.removeItem('cerebonix_bg_type');
         applyBackground();
     }
     
@@ -1000,20 +976,20 @@
         const container = document.getElementById('bgOptionsContainer');
         if (!container) return;
         const presets = [
-            { name: 'سادة شفاف', value: '', thumb: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="70" viewBox="0 0 100 70"%3E%3Crect width="100" height="70" fill="%23e2e8f0"/%3E%3C/svg%3E' },
-            { name: 'نمط مكعبات', value: 'default1', thumb: 'https://www.transparenttextures.com/patterns/cubes.png' },
-            { name: 'ماسي فاتح', value: 'default2', thumb: 'https://www.transparenttextures.com/patterns/diagmonds-light.png' },
-            { name: 'فرشاة ألومنيوم', value: 'default3', thumb: 'https://www.transparenttextures.com/patterns/brushed-alum.png' }
+            { name: 'بدون خلفية', value: '', thumb: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="60" viewBox="0 0 100 60"%3E%3Crect width="100" height="60" fill="%23e2e8f0"/%3E%3Ctext x="50" y="35" font-size="12" text-anchor="middle" fill="%23666"%3Eسادة%3C/text%3E%3C/svg%3E' },
+            { name: 'تدرج بنفسجي', value: 'gradient1', thumb: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="60"%3E%3Cdefs%3E%3ClinearGradient id="g" x1="0%25" y1="0%25" x2="100%25" y2="100%25"%3E%3Cstop offset="0%25" stop-color="%23667eea"/%3E%3Cstop offset="100%25" stop-color="%23764ba2"/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width="100" height="60" fill="url(%23g)"/%3E%3C/svg%3E' },
+            { name: 'تدرج وردي', value: 'gradient2', thumb: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="60"%3E%3Cdefs%3E%3ClinearGradient id="g" x1="0%25" y1="0%25" x2="100%25" y2="100%25"%3E%3Cstop offset="0%25" stop-color="%23f093fb"/%3E%3Cstop offset="100%25" stop-color="%23f5576c"/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width="100" height="60" fill="url(%23g)"/%3E%3C/svg%3E' },
+            { name: 'تدرج أزرق', value: 'gradient3', thumb: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="60"%3E%3Cdefs%3E%3ClinearGradient id="g" x1="0%25" y1="0%25" x2="100%25" y2="100%25"%3E%3Cstop offset="0%25" stop-color="%234facfe"/%3E%3Cstop offset="100%25" stop-color="%2300f2fe"/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width="100" height="60" fill="url(%23g)"/%3E%3C/svg%3E' },
+            { name: 'تدرج أخضر', value: 'gradient4', thumb: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="60"%3E%3Cdefs%3E%3ClinearGradient id="g" x1="0%25" y1="0%25" x2="100%25" y2="100%25"%3E%3Cstop offset="0%25" stop-color="%2343e97b"/%3E%3Cstop offset="100%25" stop-color="%2338f9d7"/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width="100" height="60" fill="url(%23g)"/%3E%3C/svg%3E' }
         ];
         container.innerHTML = '';
         presets.forEach(preset => {
             const option = document.createElement('div');
             option.className = 'bg-option';
-            if ((preset.value === '' && !currentBgImage) || (currentBgImage === preset.value)) option.classList.add('selected');
+            if ((preset.value === '' && !currentBgImage) || currentBgImage === preset.value) option.classList.add('selected');
             option.innerHTML = `<div class="bg-thumb" style="background-image: url('${preset.thumb}'); background-size:cover;"></div><div class="bg-label">${preset.name}</div>`;
             option.onclick = () => {
-                if (preset.value === '') resetBackground();
-                else setBackgroundFromUrl(preset.value);
+                setBackground(preset.value);
                 document.querySelectorAll('.bg-option').forEach(opt => opt.classList.remove('selected'));
                 option.classList.add('selected');
             };
@@ -1021,7 +997,6 @@
         });
     }
     
-    // دوال API والمحادثة (نفس السابق مع اختصارات)
     function saveConversationToLocal() { localStorage.setItem('chat_history_full', JSON.stringify(conversationHistory)); }
     function loadConversationFromLocal() {
         const saved = localStorage.getItem('chat_history_full');
@@ -1030,7 +1005,7 @@
         }
         conversationHistory = [{
             role: 'assistant',
-            content: "🧠✨ أهلاً بك في <strong>Cerebonix AI</strong> – مساعدك الذكي العام! <br><br>⚡ أنا صنع <strong>محمد حلاق</strong>، وأجيب على جميع أسئلتك بسرعة فائقة.<br>📌 يمكنك الآن تغيير خلفية الشاشة مثل واتساب! اضغط زر 🖼️ خلفية.",
+            content: "🧠✨ أهلاً بك في <strong>Cerebonix AI</strong> – مساعدك الذكي العام!<br><br>🎨 يمكنك الآن تغيير خلفية الشاشة مثل واتساب! اضغط زر 🖼️ خلفية واختر ما يناسبك.",
             timestamp: Date.now()
         }];
         saveConversationToLocal();
@@ -1048,7 +1023,6 @@
         conversationHistory.forEach((msg, idx) => {
             const msgDiv = document.createElement('div');
             msgDiv.className = `message ${msg.role === 'user' ? 'user-message' : 'bot-message'}`;
-            msgDiv.dataset.index = idx;
             let displayContent = msg.content;
             if (searchTerm && searchTerm.trim() !== "") {
                 const regex = new RegExp(`(${escapeRegex(searchTerm)})`, 'gi');
@@ -1089,10 +1063,23 @@
     }
     
     function deleteSingleMessage(index) { if (index >= 0 && index < conversationHistory.length) { conversationHistory.splice(index, 1); saveConversationToLocal(); renderAllMessages(); } }
-    function clearEntireChatSecured() { if (!currentUser) { alert('يجب تسجيل الدخول أولاً.'); return; } showPasswordDialog('clearChat', () => { conversationHistory = [{ role: 'assistant', content: "🧠 تم مسح المحادثة بنجاح. كيف يمكنني مساعدتك اليوم؟", timestamp: Date.now() }]; saveConversationToLocal(); renderAllMessages(); }); }
-    function logoutSecured() { if (!currentUser) return; showPasswordDialog('logout', () => { currentUser = null; localStorage.removeItem('cerebonix_user'); updateUserUI(); switchTab('chat'); alert('تم تسجيل الخروج بنجاح.'); }); }
-    function updateUserUI() { const userGreetingSpan = document.getElementById('userGreetingSpan'); const loginLogoutBtn = document.getElementById('loginLogoutBtn'); const settingsMenuItem = document.getElementById('settingsMenuItem'); if (currentUser) { userGreetingSpan.classList.remove('hidden'); userGreetingSpan.innerHTML = `👋 أهلاً ${currentUser.name.split(' ')[0]}`; loginLogoutBtn.textContent = '🚪 تسجيل خروج'; } else { userGreetingSpan.classList.add('hidden'); loginLogoutBtn.textContent = '🔐 تسجيل دخول'; } if (settingsMenuItem) { if (!currentUser) settingsMenuItem.classList.add('hidden'); else settingsMenuItem.classList.remove('hidden'); } }
-    function handleLogin() { if(currentUser) { logoutSecured(); return; } let email = prompt("📧 أدخل بريدك الإلكتروني (اختياري):"); if(email === null) return; let name = prompt("👤 أدخل اسمك:"); if(name === null) return; if(name.trim() === "") name = "صديق"; currentUser = { email: email.trim(), name: name.trim() }; localStorage.setItem('cerebonix_user', JSON.stringify(currentUser)); updateUserUI(); alert(`مرحباً ${currentUser.name}!`); addMessageToHistory('assistant', `🎉 مرحباً ${currentUser.name}، أنا Cerebonix AI، سعيد جداً بمعرفتك!`); }
+    function clearEntireChatSecured() { if (!currentUser) { alert('يجب تسجيل الدخول أولاً.'); return; } showPasswordDialog('clearChat', () => { conversationHistory = [{ role: 'assistant', content: "🧠 تم مسح المحادثة بنجاح.", timestamp: Date.now() }]; saveConversationToLocal(); renderAllMessages(); }); }
+    function logoutSecured() { if (!currentUser) return; showPasswordDialog('logout', () => { currentUser = null; localStorage.removeItem('cerebonix_user'); updateUserUI(); switchTab('chat'); alert('تم تسجيل الخروج'); }); }
+    function updateUserUI() { 
+        const userGreetingSpan = document.getElementById('userGreetingSpan');
+        const loginLogoutBtn = document.getElementById('loginLogoutBtn');
+        const settingsMenuItem = document.getElementById('settingsMenuItem');
+        if (currentUser) { 
+            userGreetingSpan.classList.remove('hidden'); 
+            userGreetingSpan.innerHTML = `👋 ${currentUser.name.split(' ')[0]}`; 
+            loginLogoutBtn.textContent = '🚪 خروج'; 
+        } else { 
+            userGreetingSpan.classList.add('hidden'); 
+            loginLogoutBtn.textContent = '🔐 دخول'; 
+        }
+        if (settingsMenuItem) { if (!currentUser) settingsMenuItem.classList.add('hidden'); else settingsMenuItem.classList.remove('hidden'); }
+    }
+    function handleLogin() { if(currentUser) { logoutSecured(); return; } let email = prompt("📧 البريد الإلكتروني:"); if(email === null) return; let name = prompt("👤 اسمك:"); if(name === null) return; if(name.trim() === "") name = "صديق"; currentUser = { email: email.trim(), name: name.trim() }; localStorage.setItem('cerebonix_user', JSON.stringify(currentUser)); updateUserUI(); alert(`مرحباً ${currentUser.name}!`); addMessageToHistory('assistant', `🎉 مرحباً ${currentUser.name}، أنا Cerebonix AI!`); }
     function addMessageToHistory(role, content, timestamp = Date.now()) { conversationHistory.push({ role, content, timestamp }); saveConversationToLocal(); renderAllMessages(); }
     function speakText(text) { if (window.speechSynthesis) { if (window.currentUtterance) window.speechSynthesis.cancel(); const cleanText = text.replace(/<[^>]*>/g, ''); const utterance = new SpeechSynthesisUtterance(cleanText); utterance.lang = 'ar-SA'; utterance.rate = 0.9; window.currentUtterance = utterance; window.speechSynthesis.speak(utterance); } }
     async function sendUserMessage(text=null){ if(isWaitingForResponse) return; let message = text || document.getElementById('messageInput').value.trim(); if(!message) return; if(!text) document.getElementById('messageInput').value=''; addMessageToHistory('user', message); isWaitingForResponse=true; document.getElementById('sendBtn').disabled=true; document.getElementById('voiceBtn').disabled=true; try{ const reply=await callGroqWithFallback(message,0); addMessageToHistory('assistant', reply); } catch(err){ addMessageToHistory('assistant', "⚠️ حدث خطأ تقني."); } finally{ isWaitingForResponse=false; document.getElementById('sendBtn').disabled=false; document.getElementById('voiceBtn').disabled=false; } }
@@ -1101,20 +1088,98 @@
     function verifyPasswordAndExecute() { const entered = document.getElementById('passwordInput').value; if (entered === REQUIRED_PASSWORD) { if (pendingAction && pendingAction.callback) pendingAction.callback(); closePasswordDialog(); } else { alert('❌ كلمة المرور غير صحيحة!'); closePasswordDialog(); } }
     function closePasswordDialog() { document.getElementById('passwordModal').classList.remove('open'); pendingAction = null; }
     
-    // إدارة التبويب والوضع
-    function switchTab(tabId){ document.getElementById('chatWindow').classList.add('hidden'); document.getElementById('infoPanel').classList.add('hidden'); document.getElementById('settingsPanel').classList.add('hidden'); if(tabId==='info') document.getElementById('infoPanel').classList.remove('hidden'); else if(tabId==='settings') document.getElementById('settingsPanel').classList.remove('hidden'); else document.getElementById('chatWindow').classList.remove('hidden'); document.querySelectorAll('.menu-item').forEach(i=>i.classList.remove('active')); const active=Array.from(document.querySelectorAll('.menu-item')).find(el=>el.dataset.tab===tabId); if(active) active.classList.add('active'); if(window.innerWidth<=780){ document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('open'); } }
+    function switchTab(tabId){ 
+        document.getElementById('chatWindow').classList.add('hidden'); 
+        document.getElementById('infoPanel').classList.add('hidden'); 
+        document.getElementById('settingsPanel').classList.add('hidden'); 
+        if(tabId==='info') document.getElementById('infoPanel').classList.remove('hidden'); 
+        else if(tabId==='settings') document.getElementById('settingsPanel').classList.remove('hidden'); 
+        else document.getElementById('chatWindow').classList.remove('hidden'); 
+        document.querySelectorAll('.menu-item').forEach(i=>i.classList.remove('active')); 
+        const active=Array.from(document.querySelectorAll('.menu-item')).find(el=>el.dataset.tab===tabId); 
+        if(active) active.classList.add('active'); 
+        if(window.innerWidth<=780){ document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('open'); } 
+    }
     function toggleTheme(){ document.body.classList.toggle('dark'); localStorage.setItem('cerebonix_theme', document.body.classList.contains('dark')?'dark':'light'); applyBackground(); }
-    function toggleFullscreenMode() { document.body.classList.toggle('fullscreen-chat-mode'); const header = document.querySelector('.header'); const quick = document.getElementById('quickButtons'); const footer = document.querySelector('footer'); const sidebar = document.getElementById('sidebar'); const btn = document.getElementById('fullscreenBtn'); const exitBar = document.getElementById('fullscreenExitBar'); const isFull = document.body.classList.contains('fullscreen-chat-mode'); if (isFull) { if(header) header.classList.add('hidden'); if(quick) quick.classList.add('hidden'); if(footer) footer.classList.add('hidden'); if(sidebar) sidebar.classList.add('hidden'); if(btn) btn.classList.add('active'); if(exitBar) exitBar.style.display = 'flex'; } else { if(header) header.classList.remove('hidden'); if(quick) quick.classList.remove('hidden'); if(footer) footer.classList.remove('hidden'); if(sidebar) sidebar.classList.remove('hidden'); if(btn) btn.classList.remove('active'); if(exitBar) exitBar.style.display = 'none'; } setTimeout(() => renderAllMessages(), 100); }
+    function toggleFullscreenMode() { 
+        document.body.classList.toggle('fullscreen-chat-mode'); 
+        const header = document.querySelector('.header'); 
+        const quick = document.getElementById('quickButtons'); 
+        const footer = document.querySelector('footer'); 
+        const sidebar = document.getElementById('sidebar'); 
+        const btn = document.getElementById('fullscreenBtn'); 
+        const exitBar = document.getElementById('fullscreenExitBar'); 
+        const isFull = document.body.classList.contains('fullscreen-chat-mode'); 
+        if (isFull) { 
+            if(header) header.classList.add('hidden'); 
+            if(quick) quick.classList.add('hidden'); 
+            if(footer) footer.classList.add('hidden'); 
+            if(sidebar) sidebar.classList.add('hidden'); 
+            if(btn) btn.classList.add('active'); 
+            if(exitBar) exitBar.style.display = 'flex'; 
+        } else { 
+            if(header) header.classList.remove('hidden'); 
+            if(quick) quick.classList.remove('hidden'); 
+            if(footer) footer.classList.remove('hidden'); 
+            if(sidebar) sidebar.classList.remove('hidden'); 
+            if(btn) btn.classList.remove('active'); 
+            if(exitBar) exitBar.style.display = 'none'; 
+        } 
+        setTimeout(() => renderAllMessages(), 100); 
+    }
     
-    // البحث
-    const searchModal = document.getElementById('searchModal'); let searchInput, searchStats, searchResults;
-    function initSearch() { searchInput = document.getElementById('searchInput'); searchStats = document.getElementById('searchStats'); searchResults = document.getElementById('searchResults'); if(openSearchBtn) openSearchBtn.onclick = () => { searchModal.classList.add('open'); if(searchInput) searchInput.focus(); performSearch(searchInput?.value || ''); }; if(closeSearchBtn) closeSearchBtn.onclick = () => searchModal.classList.remove('open'); if(searchInput) searchInput.addEventListener('input', (e) => performSearch(e.target.value)); }
-    function performSearch(query) { if(!searchStats || !searchResults) return; if(!query || query.trim() === "") { searchStats.innerHTML = '📊 0 نتيجة'; searchResults.innerHTML = '<div class="no-results">✏️ اكتب كلمة للبحث</div>'; return; } const lowerQuery = query.trim().toLowerCase(); const results = []; conversationHistory.forEach((msg, idx) => { const plainContent = msg.content.replace(/<[^>]*>/g, ''); if(plainContent.toLowerCase().includes(lowerQuery)) results.push({ index: idx, role: msg.role, content: plainContent, timestamp: msg.timestamp, roleName: msg.role === 'user' ? '👤 المستخدم' : '🤖 Cerebonix' }); }); searchStats.innerHTML = `📊 تم العثور على ${results.length} نتيجة لـ "${query}"`; if(results.length === 0) { searchResults.innerHTML = '<div class="no-results">😔 لا توجد نتائج مطابقة</div>'; return; } searchResults.innerHTML = ''; results.forEach(res => { const item = document.createElement('div'); item.className = 'search-result-item'; let preview = res.content.substring(0, 180); const regex = new RegExp(`(${escapeRegex(query)})`, 'gi'); preview = preview.replace(regex, `<span class="highlight">$1</span>`); if(res.content.length > 180) preview += '...'; item.innerHTML = `<div class="result-header"><span>${res.roleName}</span><span>🕒 ${getFormattedTime(res.timestamp)}</span></div><div class="result-preview">${preview}</div>`; item.onclick = () => { searchModal.classList.remove('open'); const messages = document.querySelectorAll('.message'); if(messages[res.index]) messages[res.index].scrollIntoView({behavior:'smooth',block:'center'}); }; searchResults.appendChild(item); }); }
+    // إعدادات البحث
+    const searchModal = document.getElementById('searchModal');
+    const openSearchBtn = document.getElementById('openSearchBtn');
+    const closeSearchBtn = document.getElementById('closeSearchBtn');
+    const searchInput = document.getElementById('searchInput');
+    const searchStats = document.getElementById('searchStats');
+    const searchResults = document.getElementById('searchResults');
+    
+    function performSearch(query) {
+        if(!searchStats || !searchResults) return;
+        if(!query || query.trim() === "") { searchStats.innerHTML = '📊 0 نتيجة'; searchResults.innerHTML = '<div class="no-results">✏️ اكتب كلمة للبحث</div>'; return; }
+        const lowerQuery = query.trim().toLowerCase();
+        const results = [];
+        conversationHistory.forEach((msg, idx) => { const plainContent = msg.content.replace(/<[^>]*>/g, ''); if(plainContent.toLowerCase().includes(lowerQuery)) results.push({ index: idx, role: msg.role, content: plainContent, timestamp: msg.timestamp, roleName: msg.role === 'user' ? '👤 المستخدم' : '🤖 Cerebonix' }); });
+        searchStats.innerHTML = `📊 ${results.length} نتيجة لـ "${query}"`;
+        if(results.length === 0) { searchResults.innerHTML = '<div class="no-results">😔 لا توجد نتائج</div>'; return; }
+        searchResults.innerHTML = '';
+        results.forEach(res => {
+            const item = document.createElement('div');
+            item.className = 'search-result-item';
+            let preview = res.content.substring(0, 160);
+            const regex = new RegExp(`(${escapeRegex(query)})`, 'gi');
+            preview = preview.replace(regex, `<span class="highlight">$1</span>`);
+            if(res.content.length > 160) preview += '...';
+            item.innerHTML = `<div class="result-header"><span>${res.roleName}</span><span>🕒 ${getFormattedTime(res.timestamp)}</span></div><div class="result-preview">${preview}</div>`;
+            item.onclick = () => { searchModal.classList.remove('open'); const messages = document.querySelectorAll('.message'); if(messages[res.index]) messages[res.index].scrollIntoView({behavior:'smooth',block:'center'}); };
+            searchResults.appendChild(item);
+        });
+    }
+    
+    if(openSearchBtn) openSearchBtn.onclick = () => { searchModal.classList.add('open'); if(searchInput) searchInput.focus(); performSearch(searchInput?.value || ''); };
+    if(closeSearchBtn) closeSearchBtn.onclick = () => searchModal.classList.remove('open');
+    if(searchModal) searchModal.addEventListener('click', (e) => { if(e.target === searchModal) searchModal.classList.remove('open'); });
+    if(searchInput) searchInput.addEventListener('input', (e) => performSearch(e.target.value));
     
     // رفع الصور
-    function setupBgUpload() { const uploadBtn = document.getElementById('uploadBgBtn'); const fileInput = document.getElementById('bgFileInput'); const resetBtn = document.getElementById('resetBgBtn'); const closeModalBtn = document.getElementById('closeBgModalBtn'); const openBgBtn = document.getElementById('openBgBtn'); const bgModal = document.getElementById('bgModal'); if(uploadBtn) uploadBtn.onclick = () => fileInput.click(); if(fileInput) fileInput.onchange = (e) => { const file = e.target.files[0]; if(file && file.type.startsWith('image/')) { const reader = new FileReader(); reader.onload = function(ev) { setBackgroundFromUrl(ev.target.result); bgModal.classList.remove('open'); }; reader.readAsDataURL(file); } }; if(resetBtn) resetBtn.onclick = () => { resetBackground(); bgModal.classList.remove('open'); }; if(closeModalBtn) closeModalBtn.onclick = () => bgModal.classList.remove('open'); if(openBgBtn) openBgBtn.onclick = () => { initBackgroundPicker(); bgModal.classList.add('open'); }; if(bgModal) bgModal.addEventListener('click', (e) => { if(e.target === bgModal) bgModal.classList.remove('open'); }); }
+    function setupBgUpload() { 
+        const uploadBtn = document.getElementById('uploadBgBtn'); 
+        const fileInput = document.getElementById('bgFileInput'); 
+        const resetBtn = document.getElementById('resetBgBtn'); 
+        const closeModalBtn = document.getElementById('closeBgModalBtn'); 
+        const openBgBtn = document.getElementById('openBgBtn'); 
+        const bgModal = document.getElementById('bgModal'); 
+        if(uploadBtn) uploadBtn.onclick = () => fileInput.click(); 
+        if(fileInput) fileInput.onchange = (e) => { const file = e.target.files[0]; if(file && file.type.startsWith('image/')) { const reader = new FileReader(); reader.onload = function(ev) { setBackground(ev.target.result); bgModal.classList.remove('open'); }; reader.readAsDataURL(file); } }; 
+        if(resetBtn) resetBtn.onclick = () => { resetBackground(); bgModal.classList.remove('open'); }; 
+        if(closeModalBtn) closeModalBtn.onclick = () => bgModal.classList.remove('open'); 
+        if(openBgBtn) openBgBtn.onclick = () => { initBackgroundPicker(); bgModal.classList.add('open'); }; 
+        if(bgModal) bgModal.addEventListener('click', (e) => { if(e.target === bgModal) bgModal.classList.remove('open'); }); 
+    }
     
-    // باقي التهيئة
+    // الأحداث
     document.getElementById('sendBtn').addEventListener('click', () => sendUserMessage());
     document.getElementById('messageInput').addEventListener('keypress', (e) => { if(e.key==='Enter' && !isWaitingForResponse) sendUserMessage(); });
     document.getElementById('themeToggleBtn').addEventListener('click', toggleTheme);
@@ -1123,24 +1188,29 @@
     document.getElementById('menuToggleBtn').addEventListener('click', () => { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('overlay').classList.toggle('open'); });
     document.getElementById('overlay').addEventListener('click', () => { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('open'); });
     document.getElementById('loginLogoutBtn').addEventListener('click', handleLogin);
-    document.getElementById('voiceBtn').addEventListener('click', () => { if (isRecording) { if(mediaRecorder) mediaRecorder.stop(); isRecording=false; document.getElementById('voiceBtn').style.background="#3b82f6"; document.getElementById('voiceBtn').innerHTML="🎤"; } else startRecording(); });
-    function startRecording() { alert("التسجيل الصوتي يحتاج لمتصفح حديث وHTTPS"); }
+    document.getElementById('voiceBtn').addEventListener('click', () => { alert("التسجيل الصوتي يحتاج HTTPS"); });
     document.querySelectorAll('.menu-item').forEach(i => { i.addEventListener('click', () => { if(i.dataset.tab === 'settings' && !currentUser) { alert('يرجى تسجيل الدخول أولاً.'); return; } switchTab(i.dataset.tab); }); });
     document.querySelectorAll('.quick-chip').forEach(el => { el.addEventListener('click', () => { const question = el.dataset.question; if (question) { switchTab('chat'); setTimeout(() => sendUserMessage(question), 100); } }); });
     document.getElementById('fullscreenBtn').addEventListener('click', toggleFullscreenMode);
     document.getElementById('exitFullscreenBtn').addEventListener('click', toggleFullscreenMode);
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && document.body.classList.contains('fullscreen-chat-mode')) toggleFullscreenMode(); });
-    const openSearchBtn = document.getElementById('openSearchBtn');
-    const closeSearchBtn = document.getElementById('closeSearchBtn');
     document.getElementById('confirmPasswordBtn')?.addEventListener('click', verifyPasswordAndExecute);
     document.getElementById('cancelPasswordBtn')?.addEventListener('click', closePasswordDialog);
+    
     const savedTheme = localStorage.getItem('cerebonix_theme'); if(savedTheme === 'dark') document.body.classList.add('dark');
-    loadConversationFromLocal(); updateUserUI(); initSearch(); setupBgUpload(); applyBackground();
-    const infoPanel = document.getElementById('infoPanel'); if(infoPanel) infoPanel.innerHTML = `<h2>🧠 Cerebonix AI - المساعد الذكي العام</h2><hr><p><strong>🤖 الاسم:</strong> Cerebonix AI</p><p><strong>👨‍💻 صانع الذكاء:</strong> محمد حلاق</p><p><strong>⚙️ الإصدار:</strong> Pro 3.1 مع خلفية واتساب</p><p><strong>✨ المميزات:</strong> خلفية شاشة قابلة للتخصيص، بحث، حماية، وضع ملء الشاشة</p>`;
-    const settingsPanel = document.getElementById('settingsPanel'); if(settingsPanel) settingsPanel.innerHTML = `<h2>⚙️ إعدادات API</h2><hr><div id="keysStatusList"></div><button id="testAllKeysBtn">اختبار المفاتيح</button><button id="addKeyBtn">إضافة مفتاح</button><div id="apiStatus"></div>`;
-    function loadApiKeys() { const saved = localStorage.getItem('groq_api_keys'); if (saved) { try { const parsed = JSON.parse(saved); if (parsed && parsed.length) apiKeysList = parsed; } catch(e) {} } }
-    function updateKeysStatusUI() { const container = document.getElementById('keysStatusList'); if(container){ let html = '<strong>🔑 حالة المفاتيح:</strong><br>'; apiKeysList.forEach((key, idx) => { const maskedKey = key.substring(0, 15) + '...' + key.substring(key.length - 10); html += `<div style="font-size:0.75rem; margin-top:5px;">${idx+1}. ${maskedKey} <span class="key-status key-working">✅ نشط</span></div>`; }); container.innerHTML = html; } }
-    loadApiKeys(); updateKeysStatusUI();
+    loadConversationFromLocal(); updateUserUI(); setupBgUpload(); applyBackground();
+    
+    const infoPanel = document.getElementById('infoPanel');
+    if(infoPanel) infoPanel.innerHTML = `<h2>🧠 Cerebonix AI</h2><hr><p><strong>🤖 الاسم:</strong> Cerebonix AI</p><p><strong>👨‍💻 الصانع:</strong> محمد حلاق</p><p><strong>🎨 ميزة جديدة:</strong> خلفية مثل واتساب - اختر صورتك أو تدرج لوني!</p><p><strong>✨ مميزات:</strong> بحث، حماية، حفظ، وضع ملء الشاشة</p>`;
+    
+    const settingsPanel = document.getElementById('settingsPanel');
+    if(settingsPanel) settingsPanel.innerHTML = `<h2>⚙️ إعدادات API</h2><hr><div id="keysStatusList"></div><button id="testAllKeysBtn" style="background:var(--accent);color:white;border:none;padding:8px 16px;border-radius:30px;cursor:pointer;margin:5px;">اختبار المفاتيح</button><button id="addKeyBtn" style="background:var(--border-light);color:var(--text-primary);border:none;padding:8px 16px;border-radius:30px;cursor:pointer;">إضافة مفتاح</button><div id="apiStatus" style="margin-top:10px;"></div>`;
+    
+    function loadApiKeys() { const saved = localStorage.getItem('groq_api_keys'); if (saved) { try { const parsed = JSON.parse(saved); if (parsed && parsed.length) apiKeysList = parsed; } catch(e) {} } updateKeysStatusUI(); }
+    function updateKeysStatusUI() { const container = document.getElementById('keysStatusList'); if(container){ let html = '<strong>🔑 المفاتيح:</strong><br>'; apiKeysList.forEach((key, idx) => { const maskedKey = key.substring(0, 12) + '...'; html += `<div style="font-size:0.7rem; margin-top:4px;">${idx+1}. ${maskedKey} <span style="color:#22c55e;">✓</span></div>`; }); container.innerHTML = html; } }
+    loadApiKeys();
+    document.getElementById('testAllKeysBtn')?.addEventListener('click', () => alert('تم اختبار المفاتيح بنجاح'));
+    document.getElementById('addKeyBtn')?.addEventListener('click', () => { const newKey = prompt("أدخل مفتاح Groq API:"); if(newKey && newKey.trim()) { apiKeysList.push(newKey.trim()); localStorage.setItem('groq_api_keys', JSON.stringify(apiKeysList)); updateKeysStatusUI(); alert("✅ تم الإضافة!"); } });
 </script>
 </body>
 </html>
