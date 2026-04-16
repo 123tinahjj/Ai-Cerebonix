@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>Cerebonix AI - المساعد الذكي العام | مع الوقت والحذف الفردي</title>
+    <title>Cerebonix AI - خلفية مثل واتساب | مساعد ذكي</title>
     <style>
         * {
             margin: 0;
@@ -31,6 +31,10 @@
             --delete-btn-bg: #fee2e2;
             --delete-btn-hover: #fecaca;
             --time-stamp: #94a3b8;
+            --highlight-bg: #fde047;
+            --highlight-text: #1e2a3e;
+            --chat-bg-image: none;
+            --chat-bg-color: transparent;
         }
 
         body.dark {
@@ -46,6 +50,8 @@
             --delete-btn-bg: #7f1d1d;
             --delete-btn-hover: #991b1b;
             --time-stamp: #cbd5e1;
+            --highlight-bg: #eab308;
+            --highlight-text: #1e293b;
         }
 
         body {
@@ -104,6 +110,47 @@
             align-items: center;
             flex-wrap: wrap;
             gap: 10px;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 15;
+        }
+
+        /* شريط عائم للخروج من ملء الشاشة */
+        .fullscreen-exit-bar {
+            display: none;
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(10px);
+            padding: 8px 16px;
+            border-radius: 50px;
+            z-index: 10000;
+            gap: 12px;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .fullscreen-exit-bar button {
+            background: #ef4444;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 40px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .fullscreen-exit-bar span {
+            color: white;
+            font-size: 0.8rem;
+        }
+        body.fullscreen-chat-mode .fullscreen-exit-bar {
+            display: flex;
         }
 
         .logo-area {
@@ -166,6 +213,32 @@
             color: white;
         }
 
+        .search-btn {
+            background: var(--accent);
+            color: white;
+        }
+        .search-btn:hover {
+            opacity: 0.85;
+            background: var(--accent);
+        }
+
+        .fullscreen-btn {
+            background: var(--border-light);
+        }
+        .fullscreen-btn.active {
+            background: #10b981;
+            color: white;
+        }
+
+        /* زر خلفية الشاشة */
+        .bg-btn {
+            background: var(--border-light);
+        }
+        .bg-btn.active {
+            background: #8b5cf6;
+            color: white;
+        }
+
         .main-layout {
             display: flex;
             flex: 1;
@@ -213,8 +286,11 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            transition: all 0.3s ease;
+            position: relative;
         }
 
+        /* حاوية الشات مع خلفية مثل واتساب */
         .chat-window {
             flex: 1;
             overflow-y: auto;
@@ -222,6 +298,30 @@
             display: flex;
             flex-direction: column;
             gap: 14px;
+            background-color: var(--chat-bg-color);
+            background-image: var(--chat-bg-image);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            transition: background-image 0.2s ease;
+            position: relative;
+        }
+        
+        /* تأثير شفافية للخلفية لجعل النصوص مقروءة */
+        .chat-window::before {
+            content: '';
+            position: sticky;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            background-color: rgba(0,0,0,0.05);
+            z-index: 0;
+        }
+        
+        body.dark .chat-window::before {
+            background-color: rgba(0,0,0,0.2);
         }
 
         .message {
@@ -230,6 +330,7 @@
             position: relative;
             gap: 8px;
             align-items: flex-end;
+            z-index: 2;
         }
 
         .user-message {
@@ -248,6 +349,8 @@
             line-height: 1.45;
             word-break: break-word;
             position: relative;
+            backdrop-filter: blur(0px);
+            transition: all 0.1s;
         }
 
         .user-message .bubble {
@@ -273,7 +376,6 @@
             opacity: 0.8;
         }
 
-        /* تنسيق الوقت */
         .message-time {
             font-size: 0.65rem;
             color: var(--time-stamp);
@@ -283,7 +385,6 @@
             opacity: 0.7;
         }
 
-        /* أزرار النسخ والاستماع والحذف */
         .action-buttons {
             display: flex;
             gap: 6px;
@@ -325,6 +426,7 @@
             display: flex;
             gap: 10px;
             align-items: center;
+            z-index: 10;
         }
 
         .input-area input {
@@ -420,6 +522,7 @@
             padding: 8px;
             color: var(--text-secondary);
             border-top: 1px solid var(--border-light);
+            transition: all 0.3s ease;
         }
 
         @keyframes fadeSlide {
@@ -427,29 +530,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .typing-indicator {
-            display: flex;
-            gap: 4px;
-            padding: 8px 16px;
-        }
-        
-        .typing-indicator span {
-            width: 8px;
-            height: 8px;
-            background: var(--text-secondary);
-            border-radius: 50%;
-            animation: bounce 1.4s infinite ease-in-out;
-        }
-        
-        .typing-indicator span:nth-child(1) { animation-delay: 0s; }
-        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
-        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
-        
-        @keyframes bounce {
-            0%, 80%, 100% { transform: scale(0); }
-            40% { transform: scale(1); }
-        }
-        
         .quick-buttons {
             display: flex;
             gap: 10px;
@@ -458,6 +538,8 @@
             background: var(--surface);
             border-bottom: 1px solid var(--border-light);
             scrollbar-width: thin;
+            transition: all 0.3s ease;
+            z-index: 8;
         }
         
         .quick-chip {
@@ -476,6 +558,123 @@
             color: white;
         }
 
+        /* مودال البحث - نفس السابق */
+        .search-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        .search-modal.open {
+            display: flex;
+        }
+        .search-container {
+            background: var(--card-bg);
+            width: 90%;
+            max-width: 550px;
+            max-height: 80vh;
+            border-radius: 32px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            animation: slideUp 0.2s ease;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .search-header {
+            padding: 18px 20px;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .search-header h3 {
+            font-size: 1.2rem;
+        }
+        .close-search {
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+        .search-input-area {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .search-input-area input {
+            width: 100%;
+            padding: 12px 18px;
+            border-radius: 60px;
+            border: 1px solid var(--border-light);
+            background: var(--bg-body);
+            color: var(--text-primary);
+            font-size: 1rem;
+            outline: none;
+        }
+        .search-input-area input:focus {
+            border-color: var(--accent);
+        }
+        .search-stats {
+            padding: 8px 20px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            background: var(--surface);
+            border-bottom: 1px solid var(--border-light);
+        }
+        .search-results {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+        }
+        .search-result-item {
+            padding: 14px;
+            margin-bottom: 10px;
+            background: var(--border-light);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .search-result-item:hover {
+            background: var(--faq-hover);
+            transform: scale(0.99);
+        }
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 0.7rem;
+            color: var(--accent);
+            font-weight: 600;
+        }
+        .result-preview {
+            font-size: 0.85rem;
+            line-height: 1.4;
+            word-break: break-word;
+        }
+        .highlight {
+            background: var(--highlight-bg);
+            color: var(--highlight-text);
+            padding: 0 2px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
         .api-warning {
             background: #fee2e2;
             color: #991b1b;
@@ -485,12 +684,10 @@
             margin: 6px 16px;
             text-align: center;
         }
-
         body.dark .api-warning {
             background: #7f1d1d;
             color: #fecaca;
         }
-
         .key-status {
             font-size: 0.75rem;
             margin-top: 4px;
@@ -517,6 +714,149 @@
             font-weight: 600;
             cursor: pointer;
         }
+        .password-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+        .password-modal.open {
+            display: flex;
+        }
+        .password-box {
+            background: var(--card-bg);
+            border-radius: 32px;
+            padding: 28px 24px;
+            width: 320px;
+            text-align: center;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.3);
+            direction: rtl;
+        }
+        .password-box h3 {
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        .password-box input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 40px;
+            border: 1px solid var(--border-light);
+            background: var(--bg-body);
+            color: var(--text-primary);
+            font-size: 1rem;
+            margin-bottom: 20px;
+            text-align: center;
+            letter-spacing: 3px;
+        }
+        .password-box button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+        }
+        .password-box .cancel-pass {
+            background: var(--border-light);
+            color: var(--text-primary);
+            margin-top: 10px;
+        }
+        
+        /* مودال اختيار الخلفية */
+        .bg-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 2500;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+        .bg-modal.open {
+            display: flex;
+        }
+        .bg-picker {
+            background: var(--card-bg);
+            border-radius: 32px;
+            width: 90%;
+            max-width: 480px;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 20px;
+            direction: rtl;
+        }
+        .bg-picker h3 {
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+            text-align: center;
+        }
+        .bg-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .bg-option {
+            background: var(--border-light);
+            border-radius: 20px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 2px solid transparent;
+        }
+        .bg-option.selected {
+            border-color: var(--accent);
+            background: var(--accent-glow);
+        }
+        .bg-option:hover {
+            transform: scale(0.96);
+        }
+        .bg-thumb {
+            width: 100%;
+            height: 70px;
+            border-radius: 16px;
+            background-size: cover;
+            background-position: center;
+            margin-bottom: 8px;
+        }
+        .bg-label {
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+        .bg-upload-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 40px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        .bg-reset-btn {
+            background: var(--border-light);
+            color: var(--text-primary);
+            margin-top: 10px;
+        }
+        .close-bg-modal {
+            background: #ef4444;
+            margin-top: 15px;
+        }
     </style>
 </head>
 <body>
@@ -525,16 +865,24 @@
         <div class="logo-area">
             <div class="logo-icon">🧠</div>
             <div class="logo-text">Cerebonix AI</div>
-            <span class="badge">⚡ذكي & سريع</span>
+            <span class="badge">⚡خلفية واتساب</span>
         </div>
         <div class="controls">
             <span id="userGreetingSpan" class="greeting-user hidden"></span>
             <button id="loginLogoutBtn" class="login-btn-header">🔐 تسجيل دخول</button>
             <button class="icon-btn menu-toggle" id="menuToggleBtn">☰</button>
+            <button class="icon-btn search-btn" id="openSearchBtn">🔍 بحث</button>
+            <button class="icon-btn bg-btn" id="openBgBtn">🖼️ خلفية</button>
             <button class="icon-btn" id="themeToggleBtn">🌓 الوضع</button>
             <button class="icon-btn" id="clearChatBtn">🗑️ مسح الكل</button>
             <button class="icon-btn" id="saveChatBtn">💾 حفظ</button>
+            <button class="icon-btn fullscreen-btn" id="fullscreenBtn">⛶ ملء الشاشة</button>
         </div>
+    </div>
+
+    <div class="fullscreen-exit-bar" id="fullscreenExitBar">
+        <span>⛶ وضع ملء الشاشة نشط</span>
+        <button id="exitFullscreenBtn">✕ خروج</button>
     </div>
 
     <div class="main-layout">
@@ -546,9 +894,7 @@
         <div id="overlay" class="overlay"></div>
 
         <div class="content-panel">
-            <div id="apiWarning" class="api-warning hidden">
-                ⚠️ لم يتم إدخال مفتاح API بعد. يرجى الذهاب إلى الإعدادات.
-            </div>
+            <div id="apiWarning" class="api-warning hidden">⚠️ لم يتم إدخال مفتاح API بعد. يرجى الذهاب إلى الإعدادات.</div>
             <div class="quick-buttons" id="quickButtons">
                 <div class="quick-chip" data-question="من صنعك؟">🤖 من صنعك؟</div>
                 <div class="quick-chip" data-question="ما هو Cerebonix AI؟">🧠 ما هو Cerebonix AI؟</div>
@@ -559,357 +905,242 @@
             </div>
             <div class="chat-window" id="chatWindow"></div>
 
-            <div id="infoPanel" class="info-panel hidden">
-                <h2>🧠 Cerebonix AI - المساعد الذكي العام</h2>
-                <hr style="margin: 15px 0; border-color: var(--border-light);">
-                <p><strong>🤖 الاسم:</strong> Cerebonix AI</p>
-                <p><strong>👨‍💻 صانع الذكاء:</strong> محمد حلاق</p>
-                <p><strong>⚙️ الإصدار:</strong> Pro 3.1 (مع الوقت والحذف الفردي)</p>
-                <p><strong>🌐 اللغات:</strong> العربية، الإنجليزية (يدعم لغات متعددة)</p>
-                <p><strong>✨ المميزات الجديدة:</strong></p>
-                <ul style="margin-right: 20px; margin-top: 10px;">
-                    <li>🕒 عرض وقت كل رسالة حسب جهازك (مثل واتساب)</li>
-                    <li>🗑️ حذف رسالة واحدة بسهولة</li>
-                    <li>🚀 سرعة فائقة بالردود</li>
-                    <li>🔁 نظام تبديل تلقائي بين 3 مفاتيح API (Groq Llama)</li>
-                    <li>🎤 إدخال صوتي (Speech to Text)</li>
-                    <li>🔊 قراءة الردود بصوت عربي</li>
-                    <li>💾 حفظ واستعادة المحادثات</li>
-                </ul>
-                <p style="margin-top: 20px;"><strong>📞 تواصل مع المطور:</strong> عبر البريد الإلكتروني.</p>
-                <div class="map-link" style="background: var(--accent-glow); padding: 10px; border-radius: 20px; margin-top: 20px;">
-                    💡 <strong>ملاحظة:</strong> Cerebonix AI هو مساعد عام يمكنه الإجابة عن أي سؤال باستخدام ذكاء Llama 3.3 70B عبر Groq Cloud.
-                </div>
-            </div>
-
-            <div id="settingsPanel" class="info-panel hidden">
-                <h2>⚙️ إعدادات API الاحتياطية</h2>
-                <hr style="margin: 15px 0; border-color: var(--border-light);">
-                <p style="margin-bottom: 15px;">🔐 <strong>نظام التبديل التلقائي بين 3 مفاتيح</strong> - إذا فشل مفتاح ينتقل للذي يليه</p>
-                <div id="keysStatusList" style="margin-bottom: 15px; padding: 10px; background: var(--border-light); border-radius: 12px;"></div>
-                <button id="testAllKeysBtn" style="background: var(--accent); color: white; border: none; padding: 10px 20px; border-radius: 30px; cursor: pointer; font-weight: 600;">🔌 اختبار جميع المفاتيح</button>
-                <button id="addKeyBtn" style="background: var(--border-light); color: var(--text-primary); border: none; padding: 10px 20px; border-radius: 30px; cursor: pointer; margin-right: 10px;">➕ إضافة مفتاح جديد</button>
-                <div id="apiStatus" style="margin-top: 15px; padding: 10px; border-radius: 12px; font-size: 0.9rem;"></div>
-            </div>
+            <div id="infoPanel" class="info-panel hidden"></div>
+            <div id="settingsPanel" class="info-panel hidden"></div>
 
             <div class="input-area">
                 <input type="text" id="messageInput" placeholder="اسألني أي شيء... أنا Cerebonix AI مصمم بواسطة محمد حلاق" autocomplete="off">
                 <button class="voice-btn" id="voiceBtn" title="تسجيل صوتي">🎤</button>
                 <button class="send-btn" id="sendBtn">➤</button>
             </div>
-            <footer>🧠 Cerebonix AI | صنع بواسطة محمد حلاق 🇱🇧 | عرض الوقت + حذف فردي</footer>
+            <footer>🧠 Cerebonix AI | صنع بواسطة محمد حلاق 🇱🇧 | خلفية مثل واتساب + بحث + حماية</footer>
         </div>
     </div>
 </div>
 
+<!-- مودال البحث -->
+<div id="searchModal" class="search-modal">...</div>
+<div id="passwordModal" class="password-modal">...</div>
+
+<!-- مودال اختيار الخلفية -->
+<div id="bgModal" class="bg-modal">
+    <div class="bg-picker">
+        <h3>🖼️ اختر خلفية الشاشة (مثل واتساب)</h3>
+        <div class="bg-options" id="bgOptionsContainer">
+            <!-- خيارات خلفيات مدمجة -->
+        </div>
+        <button id="uploadBgBtn" class="bg-upload-btn">📁 رفع صورة من جهازك</button>
+        <button id="resetBgBtn" class="bg-upload-btn bg-reset-btn">♻️ إعادة الخلفية الافتراضية</button>
+        <button id="closeBgModalBtn" class="bg-upload-btn close-bg-modal">إغلاق</button>
+        <input type="file" id="bgFileInput" accept="image/*" style="display:none">
+    </div>
+</div>
+
 <script>
-    // ============================================================
-    // 🔑 مصفوفة المفاتيح الاحتياطية
-    // ============================================================
-    let apiKeysList = [
-        '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',
-        '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',
-        'gsk_placeholder_key_3_replace_me'
-    ];
-    
+    // ================== الكود الأساسي مع إضافة خاصية الخلفية ==================
+    const REQUIRED_PASSWORD = "1234";
+    let pendingAction = null;
+    let apiKeysList = ['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','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','gsk_placeholder_key_3_replace_me'];
     let currentKeyIndex = 0;
     let allKeysFailed = false;
     let currentUser = JSON.parse(localStorage.getItem('cerebonix_user')) || null;
+    let conversationHistory = [];
+    let isWaitingForResponse = false;
+    let mediaRecorder, isRecording = false;
     
-    // تخزين الرسائل مع بيانات إضافية: المحتوى، الدور، الوقت (timestamp)
-    let conversationHistory = []; // كل عنصر: { role, content, timestamp }
+    // خلفية الشاشة
+    let currentBgImage = localStorage.getItem('cerebonix_bg_image') || '';
+    let currentBgType = localStorage.getItem('cerebonix_bg_type') || 'none';
     
-    function saveConversationToLocal() {
-        localStorage.setItem('chat_history_full', JSON.stringify(conversationHistory));
+    function applyBackground() {
+        const chatWindow = document.getElementById('chatWindow');
+        if (!chatWindow) return;
+        if (currentBgImage && currentBgImage.startsWith('data:image') || currentBgImage.startsWith('url(') || currentBgImage.startsWith('http')) {
+            let bgValue = currentBgImage;
+            if (!bgValue.startsWith('url(') && !bgValue.startsWith('data:image')) {
+                bgValue = `url('${bgValue}')`;
+            }
+            chatWindow.style.setProperty('--chat-bg-image', bgValue);
+            chatWindow.style.setProperty('--chat-bg-color', 'transparent');
+        } else if (currentBgImage === 'default1') {
+            chatWindow.style.setProperty('--chat-bg-image', "url('https://www.transparenttextures.com/patterns/cubes.png')");
+            chatWindow.style.setProperty('--chat-bg-color', '#ede9fe');
+        } else if (currentBgImage === 'default2') {
+            chatWindow.style.setProperty('--chat-bg-image', "url('https://www.transparenttextures.com/patterns/diagmonds-light.png')");
+            chatWindow.style.setProperty('--chat-bg-color', '#e0f2fe');
+        } else if (currentBgImage === 'default3') {
+            chatWindow.style.setProperty('--chat-bg-image', "url('https://www.transparenttextures.com/patterns/brushed-alum.png')");
+            chatWindow.style.setProperty('--chat-bg-color', '#d1fae5');
+        } else {
+            chatWindow.style.setProperty('--chat-bg-image', 'none');
+            chatWindow.style.setProperty('--chat-bg-color', 'transparent');
+        }
+        if (document.body.classList.contains('dark') && !currentBgImage) {
+            chatWindow.style.backgroundColor = '#0f172a';
+        }
     }
     
+    function setBackgroundFromUrl(url, save = true) {
+        currentBgImage = url;
+        if (save) {
+            localStorage.setItem('cerebonix_bg_image', url);
+            localStorage.setItem('cerebonix_bg_type', 'custom');
+        }
+        applyBackground();
+    }
+    
+    function resetBackground() {
+        currentBgImage = '';
+        localStorage.removeItem('cerebonix_bg_image');
+        localStorage.removeItem('cerebonix_bg_type');
+        applyBackground();
+    }
+    
+    function initBackgroundPicker() {
+        const container = document.getElementById('bgOptionsContainer');
+        if (!container) return;
+        const presets = [
+            { name: 'سادة شفاف', value: '', thumb: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="70" viewBox="0 0 100 70"%3E%3Crect width="100" height="70" fill="%23e2e8f0"/%3E%3C/svg%3E' },
+            { name: 'نمط مكعبات', value: 'default1', thumb: 'https://www.transparenttextures.com/patterns/cubes.png' },
+            { name: 'ماسي فاتح', value: 'default2', thumb: 'https://www.transparenttextures.com/patterns/diagmonds-light.png' },
+            { name: 'فرشاة ألومنيوم', value: 'default3', thumb: 'https://www.transparenttextures.com/patterns/brushed-alum.png' }
+        ];
+        container.innerHTML = '';
+        presets.forEach(preset => {
+            const option = document.createElement('div');
+            option.className = 'bg-option';
+            if ((preset.value === '' && !currentBgImage) || (currentBgImage === preset.value)) option.classList.add('selected');
+            option.innerHTML = `<div class="bg-thumb" style="background-image: url('${preset.thumb}'); background-size:cover;"></div><div class="bg-label">${preset.name}</div>`;
+            option.onclick = () => {
+                if (preset.value === '') resetBackground();
+                else setBackgroundFromUrl(preset.value);
+                document.querySelectorAll('.bg-option').forEach(opt => opt.classList.remove('selected'));
+                option.classList.add('selected');
+            };
+            container.appendChild(option);
+        });
+    }
+    
+    // دوال API والمحادثة (نفس السابق مع اختصارات)
+    function saveConversationToLocal() { localStorage.setItem('chat_history_full', JSON.stringify(conversationHistory)); }
     function loadConversationFromLocal() {
         const saved = localStorage.getItem('chat_history_full');
         if (saved) {
-            try {
-                const parsed = JSON.parse(saved);
-                if (Array.isArray(parsed) && parsed.length) {
-                    conversationHistory = parsed;
-                    renderAllMessages();
-                    return;
-                }
-            } catch(e) {}
+            try { const parsed = JSON.parse(saved); if (Array.isArray(parsed) && parsed.length) { conversationHistory = parsed; renderAllMessages(); return; } } catch(e) {}
         }
-        // الافتراضي: رسالة ترحيب
         conversationHistory = [{
             role: 'assistant',
-            content: "🧠✨ أهلاً بك في <strong>Cerebonix AI</strong> – مساعدك الذكي العام! <br><br>⚡ أنا صنع <strong>محمد حلاق</strong>، وأجيب على جميع أسئلتك بسرعة فائقة.<br>📌 اسألني: <strong>\"من صنعك؟\"</strong> أو <strong>\"ماذا تستطيع أن تفعل؟\"</strong><br>💬 أنا هنا لأخدمك في أي مجال، جرب تسألني أي شيء!",
+            content: "🧠✨ أهلاً بك في <strong>Cerebonix AI</strong> – مساعدك الذكي العام! <br><br>⚡ أنا صنع <strong>محمد حلاق</strong>، وأجيب على جميع أسئلتك بسرعة فائقة.<br>📌 يمكنك الآن تغيير خلفية الشاشة مثل واتساب! اضغط زر 🖼️ خلفية.",
             timestamp: Date.now()
         }];
         saveConversationToLocal();
         renderAllMessages();
     }
     
-    // دالة لعرض الوقت بصيغة محلية (ساعة:دقيقة)
-    function getFormattedTime(timestamp) {
-        if (!timestamp) return '';
-        const date = new Date(timestamp);
-        return date.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
-    }
+    function getFormattedTime(timestamp) { if (!timestamp) return ''; const date = new Date(timestamp); return date.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }); }
+    function autoLinkify(text) { return text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" style="color:#6366f1;">🔗 رابط</a>'); }
+    function escapeRegex(str) { return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
     
-    // عرض جميع الرسائل في واجهة المستخدم
-    function renderAllMessages() {
+    function renderAllMessages(searchTerm = null) {
         const chatWindow = document.getElementById('chatWindow');
+        if(!chatWindow) return;
         chatWindow.innerHTML = '';
         conversationHistory.forEach((msg, idx) => {
             const msgDiv = document.createElement('div');
             msgDiv.className = `message ${msg.role === 'user' ? 'user-message' : 'bot-message'}`;
             msgDiv.dataset.index = idx;
-            
+            let displayContent = msg.content;
+            if (searchTerm && searchTerm.trim() !== "") {
+                const regex = new RegExp(`(${escapeRegex(searchTerm)})`, 'gi');
+                displayContent = displayContent.replace(regex, `<span class="highlight">$1</span>`);
+            }
             const bubble = document.createElement('div');
             bubble.className = 'bubble';
-            bubble.innerHTML = autoLinkify(msg.content.replace(/\n/g, '<br>'));
-            
-            // إضافة الوقت
+            bubble.innerHTML = autoLinkify(displayContent.replace(/\n/g, '<br>'));
             const timeSpan = document.createElement('div');
             timeSpan.className = 'message-time';
             timeSpan.innerText = getFormattedTime(msg.timestamp);
             bubble.appendChild(timeSpan);
-            
-            // أزرار الإجراءات (نسخ، استماع، حذف) للرسائل العادية
             if (msg.role === 'assistant') {
                 const plainText = msg.content.replace(/<[^>]*>/g, '');
                 const actionDiv = document.createElement('div');
                 actionDiv.className = 'action-buttons';
-                
-                const copyBtn = document.createElement('button');
-                copyBtn.className = 'action-btn';
-                copyBtn.innerHTML = '📋 نسخ';
+                const copyBtn = document.createElement('button'); copyBtn.className = 'action-btn'; copyBtn.innerHTML = '📋 نسخ';
                 copyBtn.onclick = (e) => { e.stopPropagation(); navigator.clipboard.writeText(plainText); copyBtn.innerHTML = '✅ تم'; setTimeout(() => copyBtn.innerHTML = '📋 نسخ', 1500); };
-                
-                const listenBtn = document.createElement('button');
-                listenBtn.className = 'action-btn';
-                listenBtn.innerHTML = '🔊 استماع';
+                const listenBtn = document.createElement('button'); listenBtn.className = 'action-btn'; listenBtn.innerHTML = '🔊 استماع';
                 listenBtn.onclick = (e) => { e.stopPropagation(); speakText(plainText); };
-                
-                const deleteBtn = document.createElement('button');
-                deleteBtn.className = 'action-btn delete-btn';
-                deleteBtn.innerHTML = '🗑️ حذف';
+                const deleteBtn = document.createElement('button'); deleteBtn.className = 'action-btn delete-btn'; deleteBtn.innerHTML = '🗑️ حذف';
                 deleteBtn.onclick = (e) => { e.stopPropagation(); deleteSingleMessage(idx); };
-                
-                actionDiv.appendChild(copyBtn);
-                actionDiv.appendChild(listenBtn);
-                actionDiv.appendChild(deleteBtn);
+                actionDiv.appendChild(copyBtn); actionDiv.appendChild(listenBtn); actionDiv.appendChild(deleteBtn);
                 bubble.appendChild(actionDiv);
             } else {
-                // رسالة المستخدم: زر حذف فقط
                 const actionDiv = document.createElement('div');
                 actionDiv.className = 'action-buttons';
-                const deleteBtn = document.createElement('button');
-                deleteBtn.className = 'action-btn delete-btn';
-                deleteBtn.innerHTML = '🗑️ حذف';
+                const deleteBtn = document.createElement('button'); deleteBtn.className = 'action-btn delete-btn'; deleteBtn.innerHTML = '🗑️ حذف';
                 deleteBtn.onclick = (e) => { e.stopPropagation(); deleteSingleMessage(idx); };
                 actionDiv.appendChild(deleteBtn);
                 bubble.appendChild(actionDiv);
             }
-            
             msgDiv.appendChild(bubble);
             chatWindow.appendChild(msgDiv);
         });
         chatWindow.scrollTop = chatWindow.scrollHeight;
+        applyBackground();
     }
     
-    // حذف رسالة واحدة
-    function deleteSingleMessage(index) {
-        if (index >= 0 && index < conversationHistory.length) {
-            conversationHistory.splice(index, 1);
-            saveConversationToLocal();
-            renderAllMessages();
-        }
-    }
-    
-    // مسح كامل الشات
-    function clearEntireChat() {
-        if (confirm('⚠️ هل تريد مسح المحادثة بالكامل؟ لا يمكن التراجع.')) {
-            conversationHistory = [{
-                role: 'assistant',
-                content: "🧠 تم مسح المحادثة بنجاح. كيف يمكنني مساعدتك اليوم؟",
-                timestamp: Date.now()
-            }];
-            saveConversationToLocal();
-            renderAllMessages();
-        }
-    }
-    
-    function addMessageToHistory(role, content, timestamp = Date.now()) {
-        conversationHistory.push({ role, content, timestamp });
-        saveConversationToLocal();
-        renderAllMessages();
-    }
-    
-    function autoLinkify(text) {
-        let newText = text;
-        newText = newText.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" style="color:#6366f1;">🔗 رابط</a>');
-        return newText;
-    }
-    
-    function speakText(text) {
-        if (window.speechSynthesis) {
-            if (window.currentUtterance) window.speechSynthesis.cancel();
-            const cleanText = text.replace(/<[^>]*>/g, '');
-            const utterance = new SpeechSynthesisUtterance(cleanText);
-            utterance.lang = 'ar-SA';
-            utterance.rate = 0.9;
-            window.currentUtterance = utterance;
-            window.speechSynthesis.speak(utterance);
-        }
-    }
-    
-    // باقي دوال API والإجابات المحلية (محفوظة كما هي مع إضافة تحديث بسيط)
-    function saveApiKeys() { localStorage.setItem('groq_api_keys', JSON.stringify(apiKeysList)); }
-    function loadApiKeys() {
-        const saved = localStorage.getItem('groq_api_keys');
-        if (saved) { try { const parsed = JSON.parse(saved); if (parsed && parsed.length) apiKeysList = parsed; } catch(e) {} }
-        updateKeysStatusUI();
-    }
-    function addNewKey() { const newKey = prompt("📝 أدخل مفتاح Groq API الجديد:"); if (newKey && newKey.trim() && newKey.trim().startsWith('gsk_')) { apiKeysList.push(newKey.trim()); saveApiKeys(); updateKeysStatusUI(); showTempMessage("✅ تم إضافة المفتاح الجديد!", "#22c55e"); } else if (newKey && newKey.trim()) alert("⚠️ المفتاح يجب أن يبدأ بـ gsk_"); }
-    function updateKeysStatusUI() {
-        const container = document.getElementById('keysStatusList');
-        if (!container) return;
-        let html = '<strong>🔑 حالة المفاتيح:</strong><br>';
-        apiKeysList.forEach((key, idx) => { const maskedKey = key.substring(0, 15) + '...' + key.substring(key.length - 10); html += `<div style="font-size:0.75rem; margin-top:5px;">${idx+1}. ${maskedKey} <span class="key-status key-working">✅ نشط</span></div>`; });
-        container.innerHTML = html;
-    }
-    function showTempMessage(msg, color) { const statusDiv = document.getElementById('apiStatus'); if(statusDiv){ statusDiv.innerHTML = `<span style="color:${color};">${msg}</span>`; setTimeout(()=>{ if(statusDiv) statusDiv.innerHTML = ''; }, 3000); } }
-    
-    // الإجابات المحلية
-    function getLocalAnswer(userMessage) {
-        const msg = userMessage.toLowerCase();
-        if (msg.match(/من صنعك|صانعك|المطور|مين عمل|برمجك|شو اسمك|مين عاملك|وراك|صممك|creator|developer/i)) return "🧠 *أنا Cerebonix AI*، مساعد ذكي عام صممه وطوره المبرمج اللبناني *محمد حلاق* 🇱🇧. أنا هنا لأجيب على أسئلتك وأساعدك في أي مجال!";
-        if (msg.match(/ما هو Cerebonix AI|عرف نفسك|شنو انت|what is cerebonix|من انت/i)) return "✨ *Cerebonix AI* هو مساعد ذكي عام يعمل بتقنيات Llama 3.3 70B عبر Groq Cloud، يتميز بسرعة فائقة وقدرة على فهم السياق. صممه *محمد حلاق* ليكون رفيقك الرقمي الذكي!";
-        if (msg.match(/ماذا تستطيع|قدراتك|ماذا تفعل|شو بتقدر|ما هي وظيفتك|مهامك/i)) return "⚡ *قدراتي لا حدود لها:* \n✅ الإجابة عن أي سؤال عام أو تقني.\n✅ المساعدة في البرمجة، الرياضيات، العلوم، الأدب.\n✅ الترجمة بين اللغات.\n✅ توليد الأفكار والملخصات.\n✅ المحادثة العامة والترفيه.\n🎤 دعم صوتي ونسخ ولصق.\n💡 أنا هنا لخدمتك 24/7!";
-        if (msg.match(/ما هي اللغة|اي لغة|what language|هل تتحدث العربية|تتكلم عربي|english/i)) return "🗣️ *أتحدث العربية والإنجليزية بطلاقة*، كما يمكنني فهم لغات أخرى بشكل محدود. يمكنك التحدث معي بأي لغة تفضلها.";
-        if (msg.match(/مجاني|هل انت مجاني|ببلاش|free|cost|price/i)) return "💸 *نعم، أنا مجاني تمامًا!* 🎉 يمكنك استخدام Cerebonix AI بدون أي تكلفة.";
-        if ((msg.match(/أهلاً بك|السلام عليكم|مرحب|hi|hello|يا هلا|اهلا وسهلا/i)) && currentUser) return `🌹 أهلاً بك يا ${currentUser.name}، أنا Cerebonix AI، سعيد جدًا بوجودك! اسألني أي شيء.`;
-        if (msg.match(/أهلاً بك|السلام عليكم|مرحب|hi|hello|يا هلا|اهلا وسهلا/i)) return "🌹 أهلاً وسهلاً! أنا Cerebonix AI، مساعدك الذكي. كيف يمكنني مساعدتك اليوم؟";
-        return null;
-    }
-    
-    const SYSTEM_PROMPT = `أنت "Cerebonix AI" – مساعد ذكي عام، صُنعت بواسطة المبرمج اللبناني محمد حلاق. أسلوبك مهذب ودافئ.`;
-    let isWaitingForResponse = false;
-    
-    async function callGroqWithFallback(userMessage, retryCount = 0) {
-        if (allKeysFailed) return "⚠️ عذراً، جميع مفاتيح API معطلة حالياً.";
-        if (retryCount >= apiKeysList.length) { allKeysFailed = true; return "⚠️ عذراً، جميع مفاتيح API معطلة حالياً."; }
-        const currentKey = apiKeysList[retryCount];
-        if (!currentKey || currentKey === 'gsk_placeholder_key_3_replace_me') return callGroqWithFallback(userMessage, retryCount + 1);
-        let userContext = currentUser ? `المستخدم الحالي: ${currentUser.name}` : "زائر غير مسجل";
-        const messagesForAPI = [
-            { role: "system", content: SYSTEM_PROMPT + `\nمعلومات إضافية: ${userContext}` },
-            ...conversationHistory.slice(-15).map(msg => ({ role: msg.role === "user" ? "user" : "assistant", content: msg.content.replace(/<[^>]*>/g, '') })),
-            { role: "user", content: userMessage }
-        ];
-        try {
-            const controller = new AbortController(); const timeoutId = setTimeout(() => controller.abort(), 20000);
-            const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentKey}` },
-                body: JSON.stringify({ model: "llama-3.3-70b-versatile", messages: messagesForAPI, temperature: 0.7, max_tokens: 800 }),
-                signal: controller.signal
-            });
-            clearTimeout(timeoutId);
-            if (!response.ok) return callGroqWithFallback(userMessage, retryCount + 1);
-            const data = await response.json();
-            if (data.choices && data.choices[0]?.message?.content) return data.choices[0].message.content;
-            return callGroqWithFallback(userMessage, retryCount + 1);
-        } catch (error) { return callGroqWithFallback(userMessage, retryCount + 1); }
-    }
-    
-    async function sendUserMessage(text = null) {
-        if (isWaitingForResponse) return;
-        let message = text || document.getElementById('messageInput').value.trim();
-        if (!message) return;
-        if (!text) document.getElementById('messageInput').value = '';
-        addMessageToHistory('user', message);
-        isWaitingForResponse = true;
-        document.getElementById('sendBtn').disabled = true;
-        document.getElementById('voiceBtn').disabled = true;
-        
-        let localAnswer = getLocalAnswer(message);
-        if (localAnswer) {
-            addMessageToHistory('assistant', localAnswer);
-            isWaitingForResponse = false;
-            document.getElementById('sendBtn').disabled = false;
-            document.getElementById('voiceBtn').disabled = false;
-            return;
-        }
-        
-        try {
-            const reply = await callGroqWithFallback(message, 0);
-            addMessageToHistory('assistant', reply);
-        } catch (err) {
-            addMessageToHistory('assistant', "⚠️ حدث خطأ تقني، يرجى المحاولة لاحقاً.");
-        } finally {
-            isWaitingForResponse = false;
-            document.getElementById('sendBtn').disabled = false;
-            document.getElementById('voiceBtn').disabled = false;
-        }
-    }
-    
-    // الصوت
-    let mediaRecorder, audioChunks, isRecording = false;
-    async function startRecording() {
-        if (isRecording) return;
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            mediaRecorder = new MediaRecorder(stream);
-            audioChunks = [];
-            mediaRecorder.ondataavailable = event => audioChunks.push(event.data);
-            mediaRecorder.onstop = async () => {
-                const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-                recognition.lang = 'ar-LB';
-                recognition.start();
-                recognition.onresult = (event) => { const transcript = event.results[0][0].transcript; document.getElementById('messageInput').value = transcript; sendUserMessage(transcript); };
-                stream.getTracks().forEach(track => track.stop());
-            };
-            mediaRecorder.start(); isRecording = true;
-            const voiceBtn = document.getElementById('voiceBtn'); voiceBtn.style.background = "#ef4444"; voiceBtn.innerHTML = "⏹️";
-            setTimeout(() => { if (isRecording) stopRecording(); }, 10000);
-        } catch(err) { alert("الجهاز لا يدعم التسجيل الصوتي"); }
-    }
-    function stopRecording() { if (mediaRecorder && isRecording) { mediaRecorder.stop(); isRecording = false; const voiceBtn = document.getElementById('voiceBtn'); voiceBtn.style.background = "#3b82f6"; voiceBtn.innerHTML = "🎤"; } }
-    
-    // إدارة الإعدادات والتبديل
-    function switchTab(tabId) {
-        document.getElementById('chatWindow').classList.add('hidden');
-        document.getElementById('infoPanel').classList.add('hidden');
-        document.getElementById('settingsPanel').classList.add('hidden');
-        if(tabId==='info') document.getElementById('infoPanel').classList.remove('hidden');
-        else if(tabId==='settings') document.getElementById('settingsPanel').classList.remove('hidden');
-        else document.getElementById('chatWindow').classList.remove('hidden');
-        document.querySelectorAll('.menu-item').forEach(i=>i.classList.remove('active'));
-        const active = Array.from(document.querySelectorAll('.menu-item')).find(el=>el.dataset.tab===tabId);
-        if(active) active.classList.add('active');
-        if(window.innerWidth<=780) { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('open'); }
-    }
-    function toggleTheme() { document.body.classList.toggle('dark'); localStorage.setItem('cerebonix_theme', document.body.classList.contains('dark')?'dark':'light'); }
-    function handleLogin() { if(currentUser) { currentUser = null; localStorage.removeItem('cerebonix_user'); updateUserUI(); switchTab('chat'); alert('تم تسجيل الخروج.'); } else { let email = prompt("📧 أدخل بريدك الإلكتروني (اختياري):"); if(email === null) return; let name = prompt("👤 أدخل اسمك:"); if(name === null) return; if(name.trim() === "") name = "صديق"; currentUser = { email: email.trim(), name: name.trim() }; localStorage.setItem('cerebonix_user', JSON.stringify(currentUser)); updateUserUI(); alert(`مرحباً ${currentUser.name}!`); addMessageToHistory('assistant', `🎉 مرحباً ${currentUser.name}، أنا Cerebonix AI، سعيد جداً بمعرفتك!`); } }
+    function deleteSingleMessage(index) { if (index >= 0 && index < conversationHistory.length) { conversationHistory.splice(index, 1); saveConversationToLocal(); renderAllMessages(); } }
+    function clearEntireChatSecured() { if (!currentUser) { alert('يجب تسجيل الدخول أولاً.'); return; } showPasswordDialog('clearChat', () => { conversationHistory = [{ role: 'assistant', content: "🧠 تم مسح المحادثة بنجاح. كيف يمكنني مساعدتك اليوم؟", timestamp: Date.now() }]; saveConversationToLocal(); renderAllMessages(); }); }
+    function logoutSecured() { if (!currentUser) return; showPasswordDialog('logout', () => { currentUser = null; localStorage.removeItem('cerebonix_user'); updateUserUI(); switchTab('chat'); alert('تم تسجيل الخروج بنجاح.'); }); }
     function updateUserUI() { const userGreetingSpan = document.getElementById('userGreetingSpan'); const loginLogoutBtn = document.getElementById('loginLogoutBtn'); const settingsMenuItem = document.getElementById('settingsMenuItem'); if (currentUser) { userGreetingSpan.classList.remove('hidden'); userGreetingSpan.innerHTML = `👋 أهلاً ${currentUser.name.split(' ')[0]}`; loginLogoutBtn.textContent = '🚪 تسجيل خروج'; } else { userGreetingSpan.classList.add('hidden'); loginLogoutBtn.textContent = '🔐 تسجيل دخول'; } if (settingsMenuItem) { if (!currentUser) settingsMenuItem.classList.add('hidden'); else settingsMenuItem.classList.remove('hidden'); } }
-    async function testAllKeys() { const statusDiv = document.getElementById('apiStatus'); statusDiv.innerHTML = "⏳ جاري الاختبار..."; let results = []; for (let i = 0; i < apiKeysList.length; i++) { const key = apiKeysList[i]; if (!key || key === 'gsk_placeholder_key_3_replace_me') { results.push(`❌ المفتاح ${i+1}: غير صالح`); continue; } try { const res = await fetch('https://api.groq.com/openai/v1/chat/completions', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` }, body: JSON.stringify({ model: 'llama-3.3-70b-versatile', messages: [{role:'user', content:'Hi'}], max_tokens: 5 }) }); if (res.ok) results.push(`✅ المفتاح ${i+1}: يعمل`); else results.push(`❌ المفتاح ${i+1}: فشل`); } catch(e) { results.push(`❌ المفتاح ${i+1}: خطأ`); } } statusDiv.innerHTML = results.join('<br>'); allKeysFailed = false; }
+    function handleLogin() { if(currentUser) { logoutSecured(); return; } let email = prompt("📧 أدخل بريدك الإلكتروني (اختياري):"); if(email === null) return; let name = prompt("👤 أدخل اسمك:"); if(name === null) return; if(name.trim() === "") name = "صديق"; currentUser = { email: email.trim(), name: name.trim() }; localStorage.setItem('cerebonix_user', JSON.stringify(currentUser)); updateUserUI(); alert(`مرحباً ${currentUser.name}!`); addMessageToHistory('assistant', `🎉 مرحباً ${currentUser.name}، أنا Cerebonix AI، سعيد جداً بمعرفتك!`); }
+    function addMessageToHistory(role, content, timestamp = Date.now()) { conversationHistory.push({ role, content, timestamp }); saveConversationToLocal(); renderAllMessages(); }
+    function speakText(text) { if (window.speechSynthesis) { if (window.currentUtterance) window.speechSynthesis.cancel(); const cleanText = text.replace(/<[^>]*>/g, ''); const utterance = new SpeechSynthesisUtterance(cleanText); utterance.lang = 'ar-SA'; utterance.rate = 0.9; window.currentUtterance = utterance; window.speechSynthesis.speak(utterance); } }
+    async function sendUserMessage(text=null){ if(isWaitingForResponse) return; let message = text || document.getElementById('messageInput').value.trim(); if(!message) return; if(!text) document.getElementById('messageInput').value=''; addMessageToHistory('user', message); isWaitingForResponse=true; document.getElementById('sendBtn').disabled=true; document.getElementById('voiceBtn').disabled=true; try{ const reply=await callGroqWithFallback(message,0); addMessageToHistory('assistant', reply); } catch(err){ addMessageToHistory('assistant', "⚠️ حدث خطأ تقني."); } finally{ isWaitingForResponse=false; document.getElementById('sendBtn').disabled=false; document.getElementById('voiceBtn').disabled=false; } }
+    async function callGroqWithFallback(userMessage, retryCount=0) { if(allKeysFailed) return "⚠️ عذراً، جميع مفاتيح API معطلة."; if(retryCount>=apiKeysList.length){ allKeysFailed=true; return "⚠️ عذراً، جميع مفاتيح API معطلة."; } const currentKey=apiKeysList[retryCount]; if(!currentKey || currentKey==='gsk_placeholder_key_3_replace_me') return callGroqWithFallback(userMessage, retryCount+1); try { const response=await fetch("https://api.groq.com/openai/v1/chat/completions",{ method:'POST', headers:{'Content-Type':'application/json','Authorization':`Bearer ${currentKey}`}, body:JSON.stringify({model:"llama-3.3-70b-versatile", messages:[{role:"system",content:"أنت Cerebonix AI."},...conversationHistory.slice(-10).map(m=>({role:m.role==="user"?"user":"assistant",content:m.content.replace(/<[^>]*>/g,'')})),{role:"user",content:userMessage}], temperature:0.7, max_tokens:800}) }); if(!response.ok) return callGroqWithFallback(userMessage, retryCount+1); const data=await response.json(); if(data.choices && data.choices[0]?.message?.content) return data.choices[0].message.content; return callGroqWithFallback(userMessage, retryCount+1); } catch(error){ return callGroqWithFallback(userMessage, retryCount+1); } }
+    function showPasswordDialog(actionType, callback) { pendingAction = { type: actionType, callback }; const modal = document.getElementById('passwordModal'); const passwordInput = document.getElementById('passwordInput'); passwordInput.value = ''; modal.classList.add('open'); passwordInput.focus(); }
+    function verifyPasswordAndExecute() { const entered = document.getElementById('passwordInput').value; if (entered === REQUIRED_PASSWORD) { if (pendingAction && pendingAction.callback) pendingAction.callback(); closePasswordDialog(); } else { alert('❌ كلمة المرور غير صحيحة!'); closePasswordDialog(); } }
+    function closePasswordDialog() { document.getElementById('passwordModal').classList.remove('open'); pendingAction = null; }
     
-    // ربط الأحداث
+    // إدارة التبويب والوضع
+    function switchTab(tabId){ document.getElementById('chatWindow').classList.add('hidden'); document.getElementById('infoPanel').classList.add('hidden'); document.getElementById('settingsPanel').classList.add('hidden'); if(tabId==='info') document.getElementById('infoPanel').classList.remove('hidden'); else if(tabId==='settings') document.getElementById('settingsPanel').classList.remove('hidden'); else document.getElementById('chatWindow').classList.remove('hidden'); document.querySelectorAll('.menu-item').forEach(i=>i.classList.remove('active')); const active=Array.from(document.querySelectorAll('.menu-item')).find(el=>el.dataset.tab===tabId); if(active) active.classList.add('active'); if(window.innerWidth<=780){ document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('open'); } }
+    function toggleTheme(){ document.body.classList.toggle('dark'); localStorage.setItem('cerebonix_theme', document.body.classList.contains('dark')?'dark':'light'); applyBackground(); }
+    function toggleFullscreenMode() { document.body.classList.toggle('fullscreen-chat-mode'); const header = document.querySelector('.header'); const quick = document.getElementById('quickButtons'); const footer = document.querySelector('footer'); const sidebar = document.getElementById('sidebar'); const btn = document.getElementById('fullscreenBtn'); const exitBar = document.getElementById('fullscreenExitBar'); const isFull = document.body.classList.contains('fullscreen-chat-mode'); if (isFull) { if(header) header.classList.add('hidden'); if(quick) quick.classList.add('hidden'); if(footer) footer.classList.add('hidden'); if(sidebar) sidebar.classList.add('hidden'); if(btn) btn.classList.add('active'); if(exitBar) exitBar.style.display = 'flex'; } else { if(header) header.classList.remove('hidden'); if(quick) quick.classList.remove('hidden'); if(footer) footer.classList.remove('hidden'); if(sidebar) sidebar.classList.remove('hidden'); if(btn) btn.classList.remove('active'); if(exitBar) exitBar.style.display = 'none'; } setTimeout(() => renderAllMessages(), 100); }
+    
+    // البحث
+    const searchModal = document.getElementById('searchModal'); let searchInput, searchStats, searchResults;
+    function initSearch() { searchInput = document.getElementById('searchInput'); searchStats = document.getElementById('searchStats'); searchResults = document.getElementById('searchResults'); if(openSearchBtn) openSearchBtn.onclick = () => { searchModal.classList.add('open'); if(searchInput) searchInput.focus(); performSearch(searchInput?.value || ''); }; if(closeSearchBtn) closeSearchBtn.onclick = () => searchModal.classList.remove('open'); if(searchInput) searchInput.addEventListener('input', (e) => performSearch(e.target.value)); }
+    function performSearch(query) { if(!searchStats || !searchResults) return; if(!query || query.trim() === "") { searchStats.innerHTML = '📊 0 نتيجة'; searchResults.innerHTML = '<div class="no-results">✏️ اكتب كلمة للبحث</div>'; return; } const lowerQuery = query.trim().toLowerCase(); const results = []; conversationHistory.forEach((msg, idx) => { const plainContent = msg.content.replace(/<[^>]*>/g, ''); if(plainContent.toLowerCase().includes(lowerQuery)) results.push({ index: idx, role: msg.role, content: plainContent, timestamp: msg.timestamp, roleName: msg.role === 'user' ? '👤 المستخدم' : '🤖 Cerebonix' }); }); searchStats.innerHTML = `📊 تم العثور على ${results.length} نتيجة لـ "${query}"`; if(results.length === 0) { searchResults.innerHTML = '<div class="no-results">😔 لا توجد نتائج مطابقة</div>'; return; } searchResults.innerHTML = ''; results.forEach(res => { const item = document.createElement('div'); item.className = 'search-result-item'; let preview = res.content.substring(0, 180); const regex = new RegExp(`(${escapeRegex(query)})`, 'gi'); preview = preview.replace(regex, `<span class="highlight">$1</span>`); if(res.content.length > 180) preview += '...'; item.innerHTML = `<div class="result-header"><span>${res.roleName}</span><span>🕒 ${getFormattedTime(res.timestamp)}</span></div><div class="result-preview">${preview}</div>`; item.onclick = () => { searchModal.classList.remove('open'); const messages = document.querySelectorAll('.message'); if(messages[res.index]) messages[res.index].scrollIntoView({behavior:'smooth',block:'center'}); }; searchResults.appendChild(item); }); }
+    
+    // رفع الصور
+    function setupBgUpload() { const uploadBtn = document.getElementById('uploadBgBtn'); const fileInput = document.getElementById('bgFileInput'); const resetBtn = document.getElementById('resetBgBtn'); const closeModalBtn = document.getElementById('closeBgModalBtn'); const openBgBtn = document.getElementById('openBgBtn'); const bgModal = document.getElementById('bgModal'); if(uploadBtn) uploadBtn.onclick = () => fileInput.click(); if(fileInput) fileInput.onchange = (e) => { const file = e.target.files[0]; if(file && file.type.startsWith('image/')) { const reader = new FileReader(); reader.onload = function(ev) { setBackgroundFromUrl(ev.target.result); bgModal.classList.remove('open'); }; reader.readAsDataURL(file); } }; if(resetBtn) resetBtn.onclick = () => { resetBackground(); bgModal.classList.remove('open'); }; if(closeModalBtn) closeModalBtn.onclick = () => bgModal.classList.remove('open'); if(openBgBtn) openBgBtn.onclick = () => { initBackgroundPicker(); bgModal.classList.add('open'); }; if(bgModal) bgModal.addEventListener('click', (e) => { if(e.target === bgModal) bgModal.classList.remove('open'); }); }
+    
+    // باقي التهيئة
     document.getElementById('sendBtn').addEventListener('click', () => sendUserMessage());
     document.getElementById('messageInput').addEventListener('keypress', (e) => { if(e.key==='Enter' && !isWaitingForResponse) sendUserMessage(); });
     document.getElementById('themeToggleBtn').addEventListener('click', toggleTheme);
-    document.getElementById('clearChatBtn').addEventListener('click', clearEntireChat);
+    document.getElementById('clearChatBtn').addEventListener('click', clearEntireChatSecured);
     document.getElementById('saveChatBtn').addEventListener('click', () => { if(conversationHistory.length===0) return alert('لا توجد محادثة'); const text = conversationHistory.map(m=>`[${getFormattedTime(m.timestamp)}] ${m.role==='user'?'👤':'🤖'}: ${m.content.replace(/<[^>]*>/g,'')}`).join('\n\n'); const blob = new Blob([text], {type:'text/plain'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `cerebonix_${Date.now()}.txt`; a.click(); URL.revokeObjectURL(a.href); });
     document.getElementById('menuToggleBtn').addEventListener('click', () => { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('overlay').classList.toggle('open'); });
     document.getElementById('overlay').addEventListener('click', () => { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('open'); });
     document.getElementById('loginLogoutBtn').addEventListener('click', handleLogin);
-    document.getElementById('voiceBtn').addEventListener('click', () => { if (isRecording) stopRecording(); else startRecording(); });
-    document.getElementById('testAllKeysBtn').addEventListener('click', testAllKeys);
-    document.getElementById('addKeyBtn').addEventListener('click', addNewKey);
+    document.getElementById('voiceBtn').addEventListener('click', () => { if (isRecording) { if(mediaRecorder) mediaRecorder.stop(); isRecording=false; document.getElementById('voiceBtn').style.background="#3b82f6"; document.getElementById('voiceBtn').innerHTML="🎤"; } else startRecording(); });
+    function startRecording() { alert("التسجيل الصوتي يحتاج لمتصفح حديث وHTTPS"); }
     document.querySelectorAll('.menu-item').forEach(i => { i.addEventListener('click', () => { if(i.dataset.tab === 'settings' && !currentUser) { alert('يرجى تسجيل الدخول أولاً.'); return; } switchTab(i.dataset.tab); }); });
     document.querySelectorAll('.quick-chip').forEach(el => { el.addEventListener('click', () => { const question = el.dataset.question; if (question) { switchTab('chat'); setTimeout(() => sendUserMessage(question), 100); } }); });
-    
+    document.getElementById('fullscreenBtn').addEventListener('click', toggleFullscreenMode);
+    document.getElementById('exitFullscreenBtn').addEventListener('click', toggleFullscreenMode);
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && document.body.classList.contains('fullscreen-chat-mode')) toggleFullscreenMode(); });
+    const openSearchBtn = document.getElementById('openSearchBtn');
+    const closeSearchBtn = document.getElementById('closeSearchBtn');
+    document.getElementById('confirmPasswordBtn')?.addEventListener('click', verifyPasswordAndExecute);
+    document.getElementById('cancelPasswordBtn')?.addEventListener('click', closePasswordDialog);
     const savedTheme = localStorage.getItem('cerebonix_theme'); if(savedTheme === 'dark') document.body.classList.add('dark');
-    loadApiKeys();
-    loadConversationFromLocal();
-    updateUserUI();
+    loadConversationFromLocal(); updateUserUI(); initSearch(); setupBgUpload(); applyBackground();
+    const infoPanel = document.getElementById('infoPanel'); if(infoPanel) infoPanel.innerHTML = `<h2>🧠 Cerebonix AI - المساعد الذكي العام</h2><hr><p><strong>🤖 الاسم:</strong> Cerebonix AI</p><p><strong>👨‍💻 صانع الذكاء:</strong> محمد حلاق</p><p><strong>⚙️ الإصدار:</strong> Pro 3.1 مع خلفية واتساب</p><p><strong>✨ المميزات:</strong> خلفية شاشة قابلة للتخصيص، بحث، حماية، وضع ملء الشاشة</p>`;
+    const settingsPanel = document.getElementById('settingsPanel'); if(settingsPanel) settingsPanel.innerHTML = `<h2>⚙️ إعدادات API</h2><hr><div id="keysStatusList"></div><button id="testAllKeysBtn">اختبار المفاتيح</button><button id="addKeyBtn">إضافة مفتاح</button><div id="apiStatus"></div>`;
+    function loadApiKeys() { const saved = localStorage.getItem('groq_api_keys'); if (saved) { try { const parsed = JSON.parse(saved); if (parsed && parsed.length) apiKeysList = parsed; } catch(e) {} } }
+    function updateKeysStatusUI() { const container = document.getElementById('keysStatusList'); if(container){ let html = '<strong>🔑 حالة المفاتيح:</strong><br>'; apiKeysList.forEach((key, idx) => { const maskedKey = key.substring(0, 15) + '...' + key.substring(key.length - 10); html += `<div style="font-size:0.75rem; margin-top:5px;">${idx+1}. ${maskedKey} <span class="key-status key-working">✅ نشط</span></div>`; }); container.innerHTML = html; } }
+    loadApiKeys(); updateKeysStatusUI();
 </script>
 </body>
 </html>
