@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>NeuroSync Pro - نظام إدارة مفاتيح متطور</title>
-    <!-- Marked.js لدعم Markdown كامل -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <!-- DOMPurify للأمان -->
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
     <style>
         * {
@@ -71,16 +69,10 @@
             font-size: var(--base-font-size);
         }
 
-        /* تحكم في حجم الخط العام */
         body.font-small { --base-font-size: 11px; }
         body.font-medium { --base-font-size: 13px; }
         body.font-large { --base-font-size: 16px; }
         body.font-xlarge { --base-font-size: 19px; }
-
-        /* إعادة تعريف أحجام الفقاعات لاستخدام 1rem (يعتمد على body) */
-        .bubble, .bubble p, .bubble li, .bubble div, .bubble span, .bubble h1, .bubble h2, .bubble h3, .bubble h4 {
-            font-size: 1rem;
-        }
 
         .app-container {
             max-width: 100%;
@@ -120,7 +112,6 @@
             }
         }
 
-        /* شاشة تسجيل الدخول */
         .auth-screen {
             position: fixed;
             top: 0;
@@ -265,10 +256,6 @@
             font-weight: 600;
             color: white;
             margin-right: 6px;
-        }
-
-        .demo-badge {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
         }
 
         .controls {
@@ -737,7 +724,6 @@
 </head>
 <body>
 <div class="app-container" id="appContainer" style="display: none;">
-    <!-- كل واجهة التطبيق الرئيسية -->
     <div class="header">
         <div class="logo-area">
             <div class="logo-icon">🧠</div>
@@ -786,7 +772,6 @@
     </div>
 </div>
 
-<!-- شاشة تسجيل الدخول -->
 <div id="authScreen" class="auth-screen">
     <div class="auth-card">
         <div class="logo-icon" style="margin:0 auto 12px; width:50px; height:50px; font-size:28px;">🧠</div>
@@ -796,233 +781,344 @@
         <input type="password" id="loginPassword" class="auth-input" placeholder="كلمة المرور">
         <button id="doLoginBtn" class="auth-btn">دخول</button>
         <div id="authErrorMsg" class="auth-error"></div>
-        <div style="margin-top:16px; font-size:0.7rem; color:var(--text-secondary);">🧪 تجريبي: أي بريد وكلمة مرور (admin@example.com / 123456)</div>
+        <div style="margin-top:16px; font-size:0.7rem; color:var(--text-secondary);">🧪 تجريبي: admin@example.com / 123456</div>
     </div>
 </div>
 
+<div id="searchModal" class="search-modal"></div>
+<div id="bgModal" class="bg-modal"></div>
+
 <script>
-    // ---------- إعدادات المصادقة ----------
-    let isAuthenticated = false;
-    let currentUserEmail = null;
-    
-    // دوال تسجيل الدخول
-    function checkAuthAndRender() {
-        const authScreen = document.getElementById('authScreen');
-        const appContainer = document.getElementById('appContainer');
-        if(isAuthenticated && currentUserEmail) {
-            authScreen.style.display = 'none';
-            appContainer.style.display = 'flex';
-            document.getElementById('userGreetingSpan').innerText = `👋 ${currentUserEmail.split('@')[0]}`;
-            // إعادة تحميل البيانات
+    (function(){
+        // ========== متغيرات الحالة ==========
+        let isAuthenticated = false;
+        let currentUserEmail = null;
+        let currentLang = localStorage.getItem('neuronsync_lang') || 'ar';
+        let apiKeysList = [];
+        let isDemoMode = false;
+        let conversationHistory = [];
+        let isWaitingForResponse = false;
+        let currentBgImage = localStorage.getItem('neuronsync_bg_image') || '';
+        
+        // ========== دوال الترجمة ==========
+        const translations = { 
+            ar: { demoMode: "🧪 تجريبي", apiMode: "🔐 API", clearConfirm: "⚠️ هل أنت متأكد من مسح كل الرسائل؟", typeMessage: "اسألني أي شيء... أنا NeuroSync Pro", settingsTitle: "⚙️ إدارة مفاتيح API", addKey: "➕ إضافة مفتاح", testKeys: "🧪 اختبار المفاتيح", keyPlaceholder: "أدخل مفتاح Groq API (يبدأ بـ gsk_)", noKeys: "🧪 لا توجد مفاتيح - الوضع التجريبي نشط" },
+            en: { demoMode: "🧪 Demo", apiMode: "🔐 API", clearConfirm: "⚠️ Clear all messages?", typeMessage: "Ask me anything... NeuroSync Pro", settingsTitle: "⚙️ API Keys Management", addKey: "➕ Add Key", testKeys: "🧪 Test Keys", keyPlaceholder: "Enter Groq API key (starts with gsk_)", noKeys: "🧪 No keys - Demo mode" }
+        };
+        function t(key) { return translations[currentLang][key] || key; }
+        
+        // ========== دوال الخط ==========
+        function setFontSize(level) { 
+            document.body.classList.remove('font-small', 'font-medium', 'font-large', 'font-xlarge');
+            document.body.classList.add(level);
+            localStorage.setItem('neuronsync_font', level);
+        }
+        function changeFontSize(delta) {
+            let current = localStorage.getItem('neuronsync_font') || 'font-medium';
+            const sizes = ['font-small', 'font-medium', 'font-large', 'font-xlarge'];
+            let idx = sizes.indexOf(current);
+            if(idx === -1) idx = 1;
+            let newIdx = Math.min(3, Math.max(0, idx + delta));
+            setFontSize(sizes[newIdx]);
+        }
+        
+        // ========== دوال المحادثة الأساسية ==========
+        marked.setOptions({ breaks: true, gfm: true });
+        function renderMarkdown(text) { return DOMPurify.sanitize(marked.parse(text)); }
+        
+        async function getLocalMockResponse(msg) {
+            await new Promise(r=>setTimeout(r, 500));
+            const lower = msg.toLowerCase();
+            if(lower.includes('من صنعك') || lower.includes('who made you')) return currentLang === 'ar' ? "🧠 **NeuroSync Pro**\n\nتم تطويره بواسطة **محمد حلاق** 🇱🇧، مطور مستقل." : "🧠 **NeuroSync Pro**\n\nDeveloped by **Mohammad Hallak** 🇱🇧.";
+            if(lower.includes('ما هو neurosync')) return "🧠 NeuroSync Pro هو مساعد ذكي يدعم Markdown والبحث والصوت.";
+            if(lower.includes('قدرات') || lower.includes('ماذا تستطيع')) return "⚡ **قدراتي:** محادثة، Markdown، صوت، بحث، خلفيات، وضع ليلي.";
+            if(lower.includes('اللغة') || lower.includes('language')) return "🌐 أتحدث العربية والإنجليزية.";
+            if(lower.includes('ماركداون') || lower.includes('markdown')) return "# 📝 Markdown\n- **عريض**\n- `كود`\n> اقتباس";
+            return currentLang === 'ar' ? `**NeuroSync Pro** 🤖\nالرد التجريبي: ${msg.substring(0,50)}` : `**NeuroSync Pro** 🤖\nDemo response: ${msg.substring(0,50)}`;
+        }
+        async function callGroqWithFallback(msg) { return await getLocalMockResponse(msg); }
+        
+        function saveConversationToLocal() { 
+            if(isAuthenticated && currentUserEmail) 
+                localStorage.setItem(`neuronsync_chat_${currentUserEmail}`, JSON.stringify(conversationHistory)); 
+        }
+        
+        function loadConversationFromLocal() { 
+            if(isAuthenticated && currentUserEmail) {
+                const saved = localStorage.getItem(`neuronsync_chat_${currentUserEmail}`);
+                if(saved && JSON.parse(saved).length) conversationHistory = JSON.parse(saved);
+                else conversationHistory = [{ role: 'assistant', content: currentLang === 'ar' ? "# 🧠 مرحباً في NeuroSync Pro!\n**محمد حلاق** المطور. اسألني أي شيء." : "# 🧠 Welcome to NeuroSync Pro!\n**Mohammad Hallak** dev. Ask me anything.", timestamp: Date.now() }];
+            } else {
+                conversationHistory = [];
+            }
+            renderAllMessages();
+        }
+        
+        function addMessageToHistory(role, content, timestamp=Date.now()) { 
+            conversationHistory.push({ role, content, timestamp }); 
+            saveConversationToLocal(); 
+            renderAllMessages(); 
+        }
+        
+        function renderAllMessages() { 
+            const chatWindow = document.getElementById('chatWindow');
+            if(!chatWindow) return;
+            chatWindow.innerHTML = '';
+            conversationHistory.forEach((msg, idx) => {
+                const div = document.createElement('div');
+                div.className = `message ${msg.role === 'user' ? 'user-message' : 'bot-message'}`;
+                const bubble = document.createElement('div'); bubble.className = 'bubble';
+                if(msg.role === 'assistant') bubble.innerHTML = renderMarkdown(msg.content);
+                else bubble.innerHTML = msg.content.replace(/\n/g, '<br>');
+                const timeSpan = document.createElement('div'); timeSpan.className = 'message-time'; timeSpan.innerText = new Date(msg.timestamp).toLocaleTimeString();
+                bubble.appendChild(timeSpan);
+                const actions = document.createElement('div'); actions.className = 'action-buttons';
+                const copyBtn = document.createElement('button'); copyBtn.className = 'action-btn'; copyBtn.innerHTML = '📋 نسخ';
+                copyBtn.onclick = () => { navigator.clipboard.writeText(msg.content.replace(/<[^>]*>/g, '')); copyBtn.innerHTML = '✅ تم'; setTimeout(()=> copyBtn.innerHTML='📋 نسخ',1000); };
+                const deleteBtn = document.createElement('button'); deleteBtn.className = 'action-btn delete-btn'; deleteBtn.innerHTML = '🗑️ حذف';
+                deleteBtn.onclick = () => { if(confirm('حذف؟')) { conversationHistory.splice(idx,1); saveConversationToLocal(); renderAllMessages(); } };
+                actions.appendChild(copyBtn); actions.appendChild(deleteBtn);
+                bubble.appendChild(actions); div.appendChild(bubble); chatWindow.appendChild(div);
+            });
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+            applyBackground();
+        }
+        
+        function applyBackground() { 
+            const w = document.getElementById('chatWindow'); 
+            if(!w) return; 
+            if(currentBgImage && currentBgImage !== '') { 
+                if(currentBgImage.startsWith('data:') || currentBgImage.startsWith('http')) w.style.backgroundImage = `url('${currentBgImage}')`; 
+                else if(currentBgImage === 'gradient1') w.style.backgroundImage = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'; 
+                else if(currentBgImage === 'gradient2') w.style.backgroundImage = 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'; 
+                else w.style.backgroundImage = 'none'; 
+                w.style.backgroundSize = 'cover'; 
+            } else { 
+                w.style.backgroundImage = 'none'; 
+                w.style.backgroundColor = 'var(--bg-body)'; 
+            } 
+        }
+        
+        async function sendUserMessage(text) { 
+            if(isWaitingForResponse) return;
+            const message = text || document.getElementById('messageInput').value.trim();
+            if(!message) return;
+            document.getElementById('messageInput').value = '';
+            addMessageToHistory('user', message);
+            isWaitingForResponse = true;
+            document.getElementById('sendBtn').disabled = true;
+            const typingDiv = document.createElement('div'); typingDiv.id = 'typingIndicator'; typingDiv.className = 'message bot-message'; typingDiv.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span><span>✍️ جاري التفكير...</span></div>`;
+            document.getElementById('chatWindow').appendChild(typingDiv);
+            const reply = await callGroqWithFallback(message);
+            document.getElementById('typingIndicator')?.remove();
+            addMessageToHistory('assistant', reply);
+            isWaitingForResponse = false;
+            document.getElementById('sendBtn').disabled = false;
+        }
+        
+        function clearEntireChat() { 
+            if(confirm(t('clearConfirm'))) { 
+                conversationHistory = [{ role: 'assistant', content: currentLang === 'ar' ? "🧹 تم مسح المحادثة. كيف يمكنني مساعدتك؟" : "🧹 Chat cleared. How can I help?", timestamp: Date.now() }]; 
+                saveConversationToLocal(); 
+                renderAllMessages(); 
+            } 
+        }
+        
+        function switchTab(tab) { 
+            document.getElementById('chatWindow').classList.add('hidden'); 
+            document.getElementById('infoPanel').classList.add('hidden'); 
+            document.getElementById('settingsPanel').classList.add('hidden'); 
+            if(tab === 'info') document.getElementById('infoPanel').classList.remove('hidden'); 
+            else if(tab === 'settings') document.getElementById('settingsPanel').classList.remove('hidden'); 
+            else document.getElementById('chatWindow').classList.remove('hidden'); 
+            document.querySelectorAll('.menu-item').forEach(i=>i.classList.remove('active')); 
+            document.querySelector(`.menu-item[data-tab="${tab}"]`)?.classList.add('active'); 
+        }
+        
+        function buildQuickButtons() {
+            const container = document.getElementById('quickButtons');
+            if(!container) return;
+            const questions = currentLang === 'ar' 
+                ? [["🤖 من صنعك؟", "من صنعك؟"], ["🧠 ما هو NeuroSync Pro؟", "ما هو NeuroSync Pro؟"], ["👋 أهلاً بك", "أهلاً بك"], ["⚡ قدراتك", "ماذا تستطيع أن تفعل؟"], ["🗣️ اللغات", "ما هي اللغة التي تتحدثها؟"], ["💸 مجاني؟", "هل أنت مجاني؟"], ["📝 تجربة Markdown", "اخبرني عن Markdown"]]
+                : [["🤖 Who made you?", "Who made you?"], ["🧠 What is NeuroSync Pro?", "What is NeuroSync Pro?"], ["👋 Welcome", "Welcome"], ["⚡ Capabilities", "What can you do?"], ["🗣️ Languages", "What languages do you speak?"], ["💸 Free?", "Are you free?"], ["📝 Markdown demo", "Tell me about Markdown"]];
+            container.innerHTML = '';
+            questions.forEach(([label, q]) => {
+                const chip = document.createElement('div');
+                chip.className = 'quick-chip';
+                chip.innerHTML = label;
+                chip.onclick = (e) => { e.stopPropagation(); switchTab('chat'); setTimeout(() => sendUserMessage(q), 50); };
+                container.appendChild(chip);
+            });
+        }
+        
+        function setupSettingsPanel() { 
+            const panel = document.getElementById('settingsPanel'); 
+            if(!panel) return; 
+            panel.innerHTML = `<h2>${t('settingsTitle')}</h2><div id="keysStatusList"></div><input type="text" id="newApiKeyInput" placeholder="${t('keyPlaceholder')}" style="width:100%;padding:8px;"><button id="addKeyBtn" class="btn-success">${t('addKey')}</button><button id="testKeysBtn" class="btn-warning">${t('testKeys')}</button>`; 
+            document.getElementById('addKeyBtn').onclick = () => { const k = document.getElementById('newApiKeyInput').value.trim(); if(k) { apiKeysList.push(k); localStorage.setItem('neuronsync_api_keys', JSON.stringify(apiKeysList)); updateKeysStatusUI(); } }; 
+            document.getElementById('testKeysBtn').onclick = () => alert('✅ وضع تجريبي'); 
+            updateKeysStatusUI(); 
+        }
+        
+        function updateKeysStatusUI() { 
+            const c = document.getElementById('keysStatusList'); 
+            if(!c) return; 
+            if(apiKeysList.length===0) c.innerHTML = `<div>${t('noKeys')}</div>`; 
+            else c.innerHTML = apiKeysList.map((k,i)=>`<div class="key-item"><span>🔑 ${k.substr(0,12)}...</span><button onclick="window.deleteApiKey(${i})" style="background:var(--danger);color:white;border:none;padding:4px 8px;border-radius:12px;">حذف</button></div>`).join(''); 
+        }
+        
+        window.deleteApiKey = function(idx) { 
+            apiKeysList.splice(idx,1); 
+            localStorage.setItem('neuronsync_api_keys', JSON.stringify(apiKeysList)); 
+            updateKeysStatusUI(); 
+            isDemoMode = apiKeysList.length === 0; 
+            document.getElementById('modeBadge').innerHTML = isDemoMode ? t('demoMode') : t('apiMode'); 
+        };
+        
+        function toggleTheme() { 
+            document.body.classList.toggle('dark'); 
+            localStorage.setItem('neuronsync_theme', document.body.classList.contains('dark') ? 'dark' : 'light'); 
+            applyBackground(); 
+        }
+        
+        function toggleFullscreenMode() { 
+            document.body.classList.toggle('fullscreen-chat-mode'); 
+            const h = document.querySelector('.header'), q = document.getElementById('quickButtons'), f = document.querySelector('footer'), s = document.getElementById('sidebar'); 
+            if(document.body.classList.contains('fullscreen-chat-mode')) { 
+                h.classList.add('hidden'); q.classList.add('hidden'); f.classList.add('hidden'); s.classList.add('hidden'); 
+                document.getElementById('fullscreenExitBar').style.display='flex'; 
+            } else { 
+                h.classList.remove('hidden'); q.classList.remove('hidden'); f.classList.remove('hidden'); s.classList.remove('hidden'); 
+                document.getElementById('fullscreenExitBar').style.display='none'; 
+            } 
+        }
+        
+        // ========== تجهيز النوافذ المنبثقة مرة واحدة ==========
+        function initModals() {
+            // نافذة البحث
+            const searchModal = document.getElementById('searchModal');
+            searchModal.innerHTML = `<div class="search-container"><h3>🔍 بحث</h3><input type="text" id="searchInput" placeholder="كلمة..."><div id="searchResults"></div><button id="closeSearchBtn">إغلاق</button></div>`;
+            document.getElementById('closeSearchBtn').onclick = ()=> searchModal.classList.remove('open');
+            document.getElementById('searchInput').addEventListener('input',(e)=>{ 
+                const q=e.target.value.trim().toLowerCase(); 
+                if(!q) { document.getElementById('searchResults').innerHTML = ''; return; }
+                const res = conversationHistory.filter(m=>m.content.toLowerCase().includes(q)).map(m=>`<div style="padding:6px;background:var(--border-light);margin:5px 0;border-radius:10px;"><strong>${m.role}</strong>: ${m.content.substring(0,80)}</div>`).join(''); 
+                document.getElementById('searchResults').innerHTML = res || 'لا نتائج'; 
+            });
+            
+            // نافذة الخلفية
+            const bgModal = document.getElementById('bgModal');
+            bgModal.innerHTML = `<div class="bg-picker"><h3>خلفية</h3><div class="bg-options" id="bgOpts"></div><button id="uploadBgBtn" class="btn-success">📁 رفع صورة</button><button id="clearBgBtn" class="btn-warning">🗑️ إزالة</button><button id="closeBgBtn">إغلاق</button><input type="file" id="bgFile" accept="image/*" style="display:none"></div>`;
+            const presets = [{name:'بدون', value:''},{name:'تدرج بنفسجي', value:'gradient1'},{name:'تدرج وردي', value:'gradient2'}];
+            const container = document.getElementById('bgOpts');
+            presets.forEach(p=>{ 
+                const opt = document.createElement('div'); opt.className='bg-option'; if(currentBgImage===p.value) opt.classList.add('selected'); 
+                opt.innerHTML=`<div class="bg-label">${p.name}</div>`; 
+                opt.onclick=()=>{ currentBgImage=p.value; localStorage.setItem('neuronsync_bg_image',currentBgImage); applyBackground(); bgModal.classList.remove('open'); }; 
+                container.appendChild(opt); 
+            });
+            document.getElementById('uploadBgBtn').onclick = ()=>document.getElementById('bgFile').click();
+            document.getElementById('bgFile').onchange = (e)=>{ const file=e.target.files[0]; if(file){ const reader=new FileReader(); reader.onload=ev=>{ currentBgImage=ev.target.result; localStorage.setItem('neuronsync_bg_image',currentBgImage); applyBackground(); bgModal.classList.remove('open'); }; reader.readAsDataURL(file); } };
+            document.getElementById('clearBgBtn').onclick = ()=>{ currentBgImage=''; localStorage.setItem('neuronsync_bg_image',''); applyBackground(); bgModal.classList.remove('open'); };
+            document.getElementById('closeBgBtn').onclick = ()=>bgModal.classList.remove('open');
+        }
+        
+        function initAfterLogin() {
+            const savedTheme = localStorage.getItem('neuronsync_theme');
+            if(savedTheme === 'dark') document.body.classList.add('dark');
+            const savedFont = localStorage.getItem('neuronsync_font');
+            if(savedFont) setFontSize(savedFont); else setFontSize('font-medium');
             loadConversationFromLocal();
             applyBackground();
             buildQuickButtons();
             setupSettingsPanel();
-        } else {
-            authScreen.style.display = 'flex';
-            appContainer.style.display = 'none';
+            
+            // ربط الأحداث
+            document.getElementById('sendBtn').onclick = ()=>sendUserMessage();
+            document.getElementById('messageInput').onkeypress = (e)=> { if(e.key === 'Enter' && !isWaitingForResponse) sendUserMessage(); };
+            document.getElementById('themeToggleBtn').onclick = toggleTheme;
+            document.getElementById('clearChatBtn').onclick = clearEntireChat;
+            document.getElementById('saveChatBtn').onclick = ()=>{ const blob = new Blob([conversationHistory.map(m=>`${m.role}: ${m.content}`).join('\n\n')], {type:'text/plain'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`chat_${Date.now()}.txt`; a.click(); URL.revokeObjectURL(a.href); };
+            document.getElementById('menuToggleBtn').onclick = ()=>{ document.getElementById('sidebar').classList.toggle('open'); document.getElementById('overlay').classList.toggle('open'); };
+            document.getElementById('overlay').onclick = ()=>{ document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('open'); };
+            document.getElementById('logoutHeaderBtn').onclick = logout;
+            document.getElementById('voiceBtn').onclick = ()=>{ if('webkitSpeechRecognition' in window){ const recog = new webkitSpeechRecognition(); recog.lang = currentLang==='ar'?'ar-EG':'en-US'; recog.onresult=(e)=>{ document.getElementById('messageInput').value = e.results[0][0].transcript; sendUserMessage(); }; recog.start(); } else alert('متصفحك لا يدعم الصوت'); };
+            document.getElementById('fullscreenBtn').onclick = toggleFullscreenMode;
+            document.getElementById('exitFullscreenBtn').onclick = toggleFullscreenMode;
+            document.getElementById('langToggleBtn').onclick = () => { 
+                currentLang = currentLang === 'ar' ? 'en' : 'ar'; 
+                localStorage.setItem('neuronsync_lang', currentLang); 
+                document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr'; 
+                buildQuickButtons(); 
+                setupSettingsPanel(); 
+                document.getElementById('modeBadge').innerHTML = isDemoMode ? t('demoMode') : t('apiMode'); 
+                document.getElementById('messageInput').placeholder = t('typeMessage'); 
+                renderAllMessages(); 
+            };
+            document.getElementById('fontIncreaseBtn').onclick = () => changeFontSize(1);
+            document.getElementById('fontDecreaseBtn').onclick = () => changeFontSize(-1);
+            document.querySelectorAll('.menu-item').forEach(i=>{ i.onclick = ()=>{ switchTab(i.dataset.tab); }; });
+            document.getElementById('openSearchBtn').onclick = ()=>{ document.getElementById('searchModal').classList.add('open'); };
+            document.getElementById('openBgBtn').onclick = ()=>{ document.getElementById('bgModal').classList.add('open'); };
+            const infoDiv = document.getElementById('infoPanel');
+            infoDiv.innerHTML = `<h2>🧠 NeuroSync Pro</h2><p>👨‍💻 المطور: محمد حلاق 🇱🇧</p><p>✨ يدعم Markdown، صوت، بحث، خلفيات، وضع ليلي.</p>`;
         }
-    }
-    
-    function performLogin(email, password) {
-        // لأغراض تجريبية: أي إيميل صالح وكلمة مرور 123456 أو admin@example.com/123456
-        if(password === "123456" || (email === "admin@example.com" && password === "123456")) {
-            isAuthenticated = true;
-            currentUserEmail = email;
-            localStorage.setItem('neuronsync_user', JSON.stringify({email: email, loggedIn: true}));
-            checkAuthAndRender();
-            initAfterLogin();
-            return true;
-        } else {
-            document.getElementById('authErrorMsg').innerText = "❌ بيانات غير صحيحة. جرب admin@example.com / 123456";
-            return false;
+        
+        // ========== دوال المصادقة ==========
+        function performLogin(email, password) {
+            if(password === "123456" || (email === "admin@example.com" && password === "123456")) {
+                isAuthenticated = true;
+                currentUserEmail = email;
+                localStorage.setItem('neuronsync_user', JSON.stringify({email: email, loggedIn: true}));
+                document.getElementById('authScreen').style.display = 'none';
+                document.getElementById('appContainer').style.display = 'flex';
+                document.getElementById('userGreetingSpan').innerText = `👋 ${email.split('@')[0]}`;
+                initAfterLogin();
+                return true;
+            } else {
+                document.getElementById('authErrorMsg').innerText = "❌ بيانات غير صحيحة. جرب admin@example.com / 123456";
+                return false;
+            }
         }
-    }
-    
-    function logout() {
-        isAuthenticated = false;
-        currentUserEmail = null;
-        localStorage.removeItem('neuronsync_user');
-        checkAuthAndRender();
-        // مسح حالة المحادثة الظاهرية اختيارياً
-        conversationHistory = [];
-        saveConversationToLocal();
-    }
-    
-    // باقي متغيرات النظام
-    let currentLang = localStorage.getItem('neuronsync_lang') || 'ar';
-    let apiKeysList = [];
-    let isDemoMode = false;
-    let conversationHistory = [];
-    let isWaitingForResponse = false;
-    let currentBgImage = localStorage.getItem('neuronsync_bg_image') || '';
-    
-    const translations = { ar: { login: "🔐 دخول", logout: "🚪 خروج", demoMode: "🧪 تجريبي", apiMode: "🔐 API", demoWarning: "✨ **الوضع التجريبي نشط** - أضف مفتاح Groq API لردود أقوى", clearConfirm: "⚠️ هل أنت متأكد من مسح كل الرسائل؟", logoutConfirm: "تسجيل الخروج؟", logoutMsg: "👋 تم تسجيل الخروج بنجاح.", welcome: (n)=> `🎉 مرحباً ${n}! أنا NeuroSync Pro.`, settingsTitle: "⚙️ إدارة مفاتيح API", addKey: "➕ إضافة مفتاح", testKeys: "🧪 اختبار المفاتيح", keyPlaceholder: "أدخل مفتاح Groq API (يبدأ بـ gsk_)", noKeys: "🧪 لا توجد مفاتيح - الوضع التجريبي نشط", typeMessage: "اسألني أي شيء... أنا NeuroSync Pro" },
-        en: { login: "🔐 Login", logout: "🚪 Logout", demoMode: "🧪 Demo", apiMode: "🔐 API", demoWarning: "✨ **Demo mode active** - Add Groq API key", clearConfirm: "⚠️ Clear all messages?", logoutConfirm: "Logout?", logoutMsg: "👋 Logged out.", welcome: (n)=> `🎉 Welcome ${n}! I'm NeuroSync Pro.`, settingsTitle: "⚙️ API Keys Management", addKey: "➕ Add Key", testKeys: "🧪 Test Keys", keyPlaceholder: "Enter Groq API key (starts with gsk_)", noKeys: "🧪 No keys - Demo mode", typeMessage: "Ask me anything... NeuroSync Pro" } };
-    function t(key, ...args) { let txt = translations[currentLang][key] || key; return typeof txt === 'function' ? txt(...args) : txt; }
-    
-    // دوال حجم الخط (تم إصلاحها)
-    function setFontSize(level) { 
-        document.body.classList.remove('font-small', 'font-medium', 'font-large', 'font-xlarge');
-        document.body.classList.add(level);
-        localStorage.setItem('neuronsync_font', level);
-        // إعادة تطبيق التحديث على جميع العناصر ديناميكيًا
-        document.querySelectorAll('.bubble').forEach(b => { b.style.fontSize = '1rem'; });
-    }
-    function changeFontSize(delta) {
-        let current = localStorage.getItem('neuronsync_font') || 'font-medium';
-        const sizes = ['font-small', 'font-medium', 'font-large', 'font-xlarge'];
-        let idx = sizes.indexOf(current);
-        if(idx === -1) idx = 1;
-        let newIdx = Math.min(3, Math.max(0, idx + delta));
-        setFontSize(sizes[newIdx]);
-    }
-    
-    function buildQuickButtons() {
-        const container = document.getElementById('quickButtons');
-        if(!container) return;
-        const questions = currentLang === 'ar' 
-            ? [["🤖 من صنعك؟", "من صنعك؟"], ["🧠 ما هو NeuroSync Pro؟", "ما هو NeuroSync Pro؟"], ["👋 أهلاً بك", "أهلاً بك"], ["⚡ قدراتك", "ماذا تستطيع أن تفعل؟"], ["🗣️ اللغات", "ما هي اللغة التي تتحدثها؟"], ["💸 مجاني؟", "هل أنت مجاني؟"], ["📝 تجربة Markdown", "اخبرني عن Markdown"]]
-            : [["🤖 Who made you?", "Who made you?"], ["🧠 What is NeuroSync Pro?", "What is NeuroSync Pro?"], ["👋 Welcome", "Welcome"], ["⚡ Capabilities", "What can you do?"], ["🗣️ Languages", "What languages do you speak?"], ["💸 Free?", "Are you free?"], ["📝 Markdown demo", "Tell me about Markdown"]];
-        container.innerHTML = '';
-        questions.forEach(([label, q]) => {
-            const chip = document.createElement('div');
-            chip.className = 'quick-chip';
-            chip.innerHTML = label;
-            chip.onclick = (e) => { e.stopPropagation(); switchTab('chat'); setTimeout(() => sendUserMessage(q), 100); };
-            container.appendChild(chip);
-        });
-    }
-    
-    marked.setOptions({ breaks: true, gfm: true });
-    function renderMarkdown(text) { return DOMPurify.sanitize(marked.parse(text)); }
-    async function getLocalMockResponse(msg) {
-        await new Promise(r=>setTimeout(r, 600));
-        const lower = msg.toLowerCase();
-        if(lower.includes('من صنعك') || lower.includes('who made you')) return currentLang === 'ar' ? "🧠 **NeuroSync Pro**\n\nتم تطويره بواسطة **محمد حلاق** 🇱🇧، مطور مستقل." : "🧠 **NeuroSync Pro**\n\nDeveloped by **Mohammad Hallak** 🇱🇧.";
-        if(lower.includes('ما هو neurosync')) return "🧠 NeuroSync Pro هو مساعد ذكي يدعم Markdown والبحث والصوت.";
-        if(lower.includes('قدرات') || lower.includes('ماذا تستطيع')) return "⚡ **قدراتي:** محادثة، Markdown، صوت، بحث، خلفيات، وضع ليلي.";
-        if(lower.includes('اللغة') || lower.includes('language')) return "🌐 أتحدث العربية والإنجليزية.";
-        if(lower.includes('ماركداون') || lower.includes('markdown')) return "# 📝 Markdown\n- **عريض**\n- `كود`\n> اقتباس";
-        return currentLang === 'ar' ? `**NeuroSync Pro** 🤖\nالرد التجريبي: ${msg}\nأضف مفتاح API للحصول على ردود أقوى.` : `**NeuroSync Pro** 🤖\nDemo response: ${msg}\nAdd API key for better answers.`;
-    }
-    async function callGroqWithFallback(msg) { return await getLocalMockResponse(msg); }
-    function saveConversationToLocal() { if(isAuthenticated) localStorage.setItem(`neuronsync_chat_${currentUserEmail}`, JSON.stringify(conversationHistory)); }
-    function loadConversationFromLocal() { 
-        if(isAuthenticated) {
-            const saved = localStorage.getItem(`neuronsync_chat_${currentUserEmail}`);
-            if(saved && JSON.parse(saved).length) conversationHistory = JSON.parse(saved);
-            else conversationHistory = [{ role: 'assistant', content: currentLang === 'ar' ? "# 🧠 مرحباً في NeuroSync Pro!\n**محمد حلاق** المطور. اسألني أي شيء." : "# 🧠 Welcome to NeuroSync Pro!\n**Mohammad Hallak** dev. Ask me anything.", timestamp: Date.now() }];
-        } else {
+        
+        function logout() {
+            isAuthenticated = false;
+            currentUserEmail = null;
+            localStorage.removeItem('neuronsync_user');
+            document.getElementById('authScreen').style.display = 'flex';
+            document.getElementById('appContainer').style.display = 'none';
             conversationHistory = [];
         }
-        renderAllMessages();
-    }
-    function addMessageToHistory(role, content, timestamp=Date.now()) { conversationHistory.push({ role, content, timestamp }); saveConversationToLocal(); renderAllMessages(); }
-    function renderAllMessages() { 
-        const chatWindow = document.getElementById('chatWindow');
-        if(!chatWindow) return;
-        chatWindow.innerHTML = '';
-        conversationHistory.forEach((msg, idx) => {
-            const div = document.createElement('div');
-            div.className = `message ${msg.role === 'user' ? 'user-message' : 'bot-message'}`;
-            const bubble = document.createElement('div'); bubble.className = 'bubble';
-            if(msg.role === 'assistant') bubble.innerHTML = renderMarkdown(msg.content);
-            else bubble.innerHTML = msg.content.replace(/\n/g, '<br>');
-            const timeSpan = document.createElement('div'); timeSpan.className = 'message-time'; timeSpan.innerText = new Date(msg.timestamp).toLocaleTimeString();
-            bubble.appendChild(timeSpan);
-            const actions = document.createElement('div'); actions.className = 'action-buttons';
-            const copyBtn = document.createElement('button'); copyBtn.className = 'action-btn'; copyBtn.innerHTML = '📋 نسخ';
-            copyBtn.onclick = () => { navigator.clipboard.writeText(msg.content.replace(/<[^>]*>/g, '')); copyBtn.innerHTML = '✅ تم'; setTimeout(()=> copyBtn.innerHTML='📋 نسخ',1000); };
-            const deleteBtn = document.createElement('button'); deleteBtn.className = 'action-btn delete-btn'; deleteBtn.innerHTML = '🗑️ حذف';
-            deleteBtn.onclick = () => { if(confirm('حذف؟')) { conversationHistory.splice(idx,1); saveConversationToLocal(); renderAllMessages(); } };
-            actions.appendChild(copyBtn); actions.appendChild(deleteBtn);
-            bubble.appendChild(actions); div.appendChild(bubble); chatWindow.appendChild(div);
+        
+        function checkAuthAndRender() {
+            const savedUser = localStorage.getItem('neuronsync_user');
+            if(savedUser) {
+                try {
+                    const userObj = JSON.parse(savedUser);
+                    if(userObj.loggedIn && userObj.email) {
+                        isAuthenticated = true;
+                        currentUserEmail = userObj.email;
+                        document.getElementById('authScreen').style.display = 'none';
+                        document.getElementById('appContainer').style.display = 'flex';
+                        document.getElementById('userGreetingSpan').innerText = `👋 ${currentUserEmail.split('@')[0]}`;
+                        initAfterLogin();
+                        return;
+                    }
+                } catch(e) {}
+            }
+            document.getElementById('authScreen').style.display = 'flex';
+            document.getElementById('appContainer').style.display = 'none';
+        }
+        
+        // ========== بدء التشغيل ==========
+        initModals();
+        document.getElementById('doLoginBtn').addEventListener('click', () => {
+            const email = document.getElementById('loginEmail').value.trim();
+            const pass = document.getElementById('loginPassword').value.trim();
+            performLogin(email, pass);
         });
-        chatWindow.scrollTop = chatWindow.scrollHeight;
-        applyBackground();
-    }
-    function applyBackground() { const w = document.getElementById('chatWindow'); if(!w) return; if(currentBgImage && currentBgImage !== '') { if(currentBgImage.startsWith('data:') || currentBgImage.startsWith('http')) w.style.backgroundImage = `url('${currentBgImage}')`; else if(currentBgImage === 'gradient1') w.style.backgroundImage = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'; else if(currentBgImage === 'gradient2') w.style.backgroundImage = 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'; else w.style.backgroundImage = 'none'; w.style.backgroundSize = 'cover'; } else { w.style.backgroundImage = 'none'; w.style.backgroundColor = 'var(--bg-body)'; } }
-    async function sendUserMessage(text) { 
-        if(isWaitingForResponse) return;
-        const message = text || document.getElementById('messageInput').value.trim();
-        if(!message) return;
-        document.getElementById('messageInput').value = '';
-        addMessageToHistory('user', message);
-        isWaitingForResponse = true;
-        document.getElementById('sendBtn').disabled = true;
-        const typingDiv = document.createElement('div'); typingDiv.id = 'typingIndicator'; typingDiv.className = 'message bot-message'; typingDiv.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span><span>✍️ جاري التفكير...</span></div>`;
-        document.getElementById('chatWindow').appendChild(typingDiv);
-        const reply = await callGroqWithFallback(message);
-        document.getElementById('typingIndicator')?.remove();
-        addMessageToHistory('assistant', reply);
-        isWaitingForResponse = false;
-        document.getElementById('sendBtn').disabled = false;
-    }
-    function clearEntireChat() { if(confirm(t('clearConfirm'))) { conversationHistory = [{ role: 'assistant', content: currentLang === 'ar' ? "🧹 تم مسح المحادثة. كيف يمكنني مساعدتك؟" : "🧹 Chat cleared. How can I help?", timestamp: Date.now() }]; saveConversationToLocal(); renderAllMessages(); } }
-    function switchTab(tab) { document.getElementById('chatWindow').classList.add('hidden'); document.getElementById('infoPanel').classList.add('hidden'); document.getElementById('settingsPanel').classList.add('hidden'); if(tab === 'info') document.getElementById('infoPanel').classList.remove('hidden'); else if(tab === 'settings') document.getElementById('settingsPanel').classList.remove('hidden'); else document.getElementById('chatWindow').classList.remove('hidden'); document.querySelectorAll('.menu-item').forEach(i=>i.classList.remove('active')); document.querySelector(`.menu-item[data-tab="${tab}"]`)?.classList.add('active'); }
-    function setupSettingsPanel() { const panel = document.getElementById('settingsPanel'); if(!panel) return; panel.innerHTML = `<h2>${t('settingsTitle')}</h2><div id="keysStatusList"></div><input type="text" id="newApiKeyInput" placeholder="${t('keyPlaceholder')}" style="width:100%;padding:8px;"><button id="addKeyBtn" class="btn-success">${t('addKey')}</button><button id="testKeysBtn" class="btn-warning">${t('testKeys')}</button>`; document.getElementById('addKeyBtn').onclick = () => { const k = document.getElementById('newApiKeyInput').value.trim(); if(k) { apiKeysList.push(k); localStorage.setItem('neuronsync_api_keys', JSON.stringify(apiKeysList)); updateKeysStatusUI(); } }; document.getElementById('testKeysBtn').onclick = () => alert('✅ وضع تجريبي، جميع المفاتيح وهمية.'); updateKeysStatusUI(); }
-    function updateKeysStatusUI() { const c = document.getElementById('keysStatusList'); if(!c) return; if(apiKeysList.length===0) c.innerHTML = `<div>${t('noKeys')}</div>`; else c.innerHTML = apiKeysList.map((k,i)=>`<div class="key-item"><span>🔑 ${k.substr(0,12)}...</span><button onclick="deleteApiKey(${i})" style="background:var(--danger);color:white;border:none;padding:4px 8px;border-radius:12px;">حذف</button></div>`).join(''); }
-    window.deleteApiKey = function(idx) { apiKeysList.splice(idx,1); localStorage.setItem('neuronsync_api_keys', JSON.stringify(apiKeysList)); updateKeysStatusUI(); if(apiKeysList.length===0) isDemoMode=true; else isDemoMode=false; document.getElementById('modeBadge').innerHTML = isDemoMode ? t('demoMode') : t('apiMode'); };
-    function toggleTheme() { document.body.classList.toggle('dark'); localStorage.setItem('neuronsync_theme', document.body.classList.contains('dark') ? 'dark' : 'light'); applyBackground(); }
-    function toggleFullscreenMode() { document.body.classList.toggle('fullscreen-chat-mode'); const h = document.querySelector('.header'), q = document.getElementById('quickButtons'), f = document.querySelector('footer'), s = document.getElementById('sidebar'); if(document.body.classList.contains('fullscreen-chat-mode')) { h.classList.add('hidden'); q.classList.add('hidden'); f.classList.add('hidden'); s.classList.add('hidden'); document.getElementById('fullscreenExitBar').style.display='flex'; } else { h.classList.remove('hidden'); q.classList.remove('hidden'); f.classList.remove('hidden'); s.classList.remove('hidden'); document.getElementById('fullscreenExitBar').style.display='none'; } }
-    function setupBgModal() { const modal = document.getElementById('bgModal'); modal.innerHTML = `<div class="bg-picker"><h3>خلفية</h3><div class="bg-options" id="bgOpts"></div><button id="uploadBgBtn" class="btn-success">📁 رفع صورة</button><button id="clearBgBtn" class="btn-warning">🗑️ إزالة</button><button id="closeBgBtn">إغلاق</button><input type="file" id="bgFile" accept="image/*" style="display:none"></div>`; const presets = [{name:'بدون', value:''},{name:'تدرج بنفسجي', value:'gradient1'},{name:'تدرج وردي', value:'gradient2'}]; const container = document.getElementById('bgOpts'); presets.forEach(p=>{ const opt = document.createElement('div'); opt.className='bg-option'; if(currentBgImage===p.value) opt.classList.add('selected'); opt.innerHTML=`<div class="bg-label">${p.name}</div>`; opt.onclick=()=>{ currentBgImage=p.value; localStorage.setItem('neuronsync_bg_image',currentBgImage); applyBackground(); modal.classList.remove('open'); }; container.appendChild(opt); }); document.getElementById('uploadBgBtn').onclick = ()=>document.getElementById('bgFile').click(); document.getElementById('bgFile').onchange = (e)=>{ const file=e.target.files[0]; if(file){ const reader=new FileReader(); reader.onload=ev=>{ currentBgImage=ev.target.result; localStorage.setItem('neuronsync_bg_image',currentBgImage); applyBackground(); modal.classList.remove('open'); }; reader.readAsDataURL(file); } }; document.getElementById('clearBgBtn').onclick = ()=>{ currentBgImage=''; localStorage.setItem('neuronsync_bg_image',''); applyBackground(); modal.classList.remove('open'); }; document.getElementById('closeBgBtn').onclick = ()=>modal.classList.remove('open'); }
-    function setupSearchModal() { const modal = document.getElementById('searchModal'); modal.innerHTML = `<div class="search-container"><h3>🔍 بحث</h3><input type="text" id="searchInput" placeholder="كلمة..."><div id="searchResults"></div><button id="closeSearchBtn">إغلاق</button></div>`; document.getElementById('closeSearchBtn').onclick = ()=>modal.classList.remove('open'); document.getElementById('searchInput').addEventListener('input',(e)=>{ const q=e.target.value.trim(); if(!q) return; const res = conversationHistory.filter(m=>m.content.toLowerCase().includes(q.toLowerCase())).map(m=>`<div style="padding:6px;background:var(--border-light);margin:5px 0;border-radius:10px;"><strong>${m.role}</strong>: ${m.content.substring(0,80)}</div>`).join(''); document.getElementById('searchResults').innerHTML = res || 'لا نتائج'; }); }
-    
-    function initAfterLogin() {
-        const savedTheme = localStorage.getItem('neuronsync_theme');
-        if(savedTheme === 'dark') document.body.classList.add('dark');
-        const savedFont = localStorage.getItem('neuronsync_font');
-        if(savedFont) setFontSize(savedFont); else setFontSize('font-medium');
-        loadConversationFromLocal();
-        applyBackground();
-        buildQuickButtons();
-        setupSettingsPanel();
-        setupBgModal();
-        setupSearchModal();
-        document.getElementById('sendBtn').onclick = ()=>sendUserMessage();
-        document.getElementById('messageInput').onkeypress = (e)=> { if(e.key === 'Enter' && !isWaitingForResponse) sendUserMessage(); };
-        document.getElementById('themeToggleBtn').onclick = toggleTheme;
-        document.getElementById('clearChatBtn').onclick = clearEntireChat;
-        document.getElementById('saveChatBtn').onclick = ()=>{ const blob = new Blob([conversationHistory.map(m=>`${m.role}: ${m.content}`).join('\n\n')], {type:'text/plain'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`chat_${Date.now()}.txt`; a.click(); URL.revokeObjectURL(a.href); };
-        document.getElementById('menuToggleBtn').onclick = ()=>{ document.getElementById('sidebar').classList.toggle('open'); document.getElementById('overlay').classList.toggle('open'); };
-        document.getElementById('overlay').onclick = ()=>{ document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('open'); };
-        document.getElementById('logoutHeaderBtn').onclick = logout;
-        document.getElementById('voiceBtn').onclick = ()=>{ if('webkitSpeechRecognition' in window){ const recog = new webkitSpeechRecognition(); recog.lang = currentLang==='ar'?'ar-EG':'en-US'; recog.onresult=(e)=>{ document.getElementById('messageInput').value = e.results[0][0].transcript; sendUserMessage(); }; recog.start(); } else alert('متصفحك لا يدعم الصوت'); };
-        document.getElementById('fullscreenBtn').onclick = toggleFullscreenMode;
-        document.getElementById('exitFullscreenBtn').onclick = toggleFullscreenMode;
-        document.getElementById('langToggleBtn').onclick = () => { currentLang = currentLang === 'ar' ? 'en' : 'ar'; localStorage.setItem('neuronsync_lang', currentLang); document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr'; buildQuickButtons(); setupSettingsPanel(); document.getElementById('modeBadge').innerHTML = isDemoMode ? t('demoMode') : t('apiMode'); document.getElementById('messageInput').placeholder = t('typeMessage'); renderAllMessages(); };
-        document.getElementById('fontIncreaseBtn').onclick = () => changeFontSize(1);
-        document.getElementById('fontDecreaseBtn').onclick = () => changeFontSize(-1);
-        document.querySelectorAll('.menu-item').forEach(i=>{ i.onclick = ()=>{ switchTab(i.dataset.tab); }; });
-        document.getElementById('openSearchBtn').onclick = ()=>{ setupSearchModal(); document.getElementById('searchModal').classList.add('open'); };
-        document.getElementById('openBgBtn').onclick = ()=>{ setupBgModal(); document.getElementById('bgModal').classList.add('open'); };
-        const infoDiv = document.getElementById('infoPanel');
-        infoDiv.innerHTML = `<h2>🧠 NeuroSync Pro</h2><p>👨‍💻 المطور: محمد حلاق 🇱🇧</p><p>✨ يدعم Markdown، صوت، بحث، خلفيات، وضع ليلي.</p>`;
-    }
-    
-    // ربط حدث تسجيل الدخول
-    document.getElementById('doLoginBtn').addEventListener('click', () => {
-        const email = document.getElementById('loginEmail').value.trim();
-        const pass = document.getElementById('loginPassword').value.trim();
-        performLogin(email, pass);
-    });
-    
-    // التحقق من وجود جلسة سابقة
-    const savedUser = localStorage.getItem('neuronsync_user');
-    if(savedUser) {
-        try {
-            const userObj = JSON.parse(savedUser);
-            if(userObj.loggedIn && userObj.email) {
-                isAuthenticated = true;
-                currentUserEmail = userObj.email;
-                checkAuthAndRender();
-                initAfterLogin();
-            } else { checkAuthAndRender(); }
-        } catch(e) { checkAuthAndRender(); }
-    } else { checkAuthAndRender(); }
+        checkAuthAndRender();
+    })();
 </script>
-<div id="searchModal" class="search-modal"></div>
-<div id="bgModal" class="bg-modal"></div>
 </body>
 </html>
